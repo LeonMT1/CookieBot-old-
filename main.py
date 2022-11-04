@@ -8,7 +8,6 @@ from datetime import datetime
 import aiosqlite
 import discord
 import humanfriendly
-from utils import *
 import pytz
 import requests
 from discord import Option
@@ -167,7 +166,7 @@ async def place(ctx, pos: int):
 
                 checkWinner(winningConditions, mark)
                 print(count)
-                if gameOver == True:
+                if gameOver:
                     await ctx.send(mark + " wins!")
                 elif count >= 9:
                     gameOver = True
@@ -289,12 +288,13 @@ async def daily(ctx):
         await ctx.respond(f"Du hast deine Tägliche Belohnung eingesammelt und **{cookies}** Cookies bekommen!")
 
 
-@bot.slash_command(description="Würfel! falls du mal keinen Würfel zur hand haben solltest.")
-async def würfeln(ctx):
+@bot.slash_command(description="Würfel! falls du mal keinen Würfel zur hand haben solltest.", name="würfeln")
+async def wuerfeln(ctx):
     print(f"{ctx.author.name} hat /würfeln gemacht")
-    würfelgif = "https://images-ext-1.discordapp.net/external/ci8_b281eob1YfQ-vPAKHQBBPSRt_xrA-7eYpd5d6As/https/media.tenor.com/IfbgWLbg_88AAAAC/dice.gif"
+    wuerfelgif = "https://images-ext-1.discordapp.net/external/ci8_b281eob1YfQ-vPAKHQBBPSRt_xrA-7eYpd5d6As/https" \
+                 "/media.tenor.com/IfbgWLbg_88AAAAC/dice.gif"
     zahl = random.randint(1, 6)
-    await ctx.respond(f"{würfelgif}")
+    await ctx.respond(f"{wuerfelgif}")
     async with ctx.typing():
         await asyncio.sleep(1)
     await ctx.respond(f"Du hast die Zahl {zahl} gewürfelt!")
@@ -390,11 +390,11 @@ Beispiel: Hans:Hallo(edited) Modchat:Hands:Hallq » edited: Hallo
 Rechte: Mods
 
 //command nicht fertig es ist greade nur 5uhr will endlich schlafen//""")
+    await ctx.respond(embed=funktionen)
 
 
 @bot.slash_command(description="Erstelle eine Umfrage in #infos")
 async def umfrage(ctx, args):
-    guild = bot.get_guild(724602228505313311)
     embed = discord.Embed(title=f"**NEUE UMFRAGE**!", description=f"""
 
        > **{args}** || @everyone ||
@@ -455,6 +455,7 @@ async def cr(ctx):
 @bot.slash_command(deschripion="Löscht Narichten")
 @discord.default_permissions(administrator=True)
 async def clear(ctx, amout: int):
+    global message_deleted
     print(f"{ctx.author.name} hat /clear gemacht")
     if amout > 1000:
         await ctx.send(f"Du kannst nicht mehr als 1000 Narichten auf einmal löschen !")
@@ -504,9 +505,9 @@ async def on_application_command_error(ctx, error):
         await ctx.respond(f"Du musst noch {final_time} warten.", ephemeral=True)
 
 
-@bot.slash_command(description="Aktivität vom Bot verändern")
+@bot.slash_command(description="Aktivität vom Bot verändern", name="aktivität")
 @commands.cooldown(1, 10, commands.BucketType.guild)
-async def aktivität(ctx,
+async def aktivitaet(ctx,
                     typ: Option(str, choices=["game", "stream"], description="Wähle eine Aktivität aus"),
                     name: Option(str, description="Schreibe hier den Namen der Aktiviät hin"),
                     status: Option(str, description="Welchen online Status soll der Bot haben?",
@@ -514,6 +515,7 @@ async def aktivität(ctx,
                     streamer: Option(str, default='https://twitch.tv/lado5670_lul',
                                      description="Gib hier den Kanalnamen ein (komplett klein)")
                     ):
+    global act
     print(f"{ctx.author.name} hat /aktivität gemacht")
     if typ == "game":
         act = discord.Game(name=name)
@@ -719,16 +721,13 @@ class embedModal(discord.ui.Modal):
         super().__init__(
             discord.ui.InputText(
                 label="Embed Titel",
-                placeholder="Schreibe hier!"
-            ),
+                placeholder="Schreibe hier!"),
             discord.ui.InputText(
                 label="Embed Beschreibung",
                 placeholder="Schreibe hier!",
-                style=discord.InputTextStyle.long
-            ),
+                style=discord.InputTextStyle.long),
             *args,
-            **kwargs
-        )
+            **kwargs)
 
     async def callback(self, interaction):
         de = pytz.timezone('Europe/Berlin')
@@ -835,10 +834,11 @@ async def on_message_delete(message: discord.Message):
                                           color=discord.Color.red())
                     await message.channel.send(embed=embed)
         else:
-            embed = discord.Embed(title=f"Ghost ping", description=f"{len(message.mentions)} User wurden von "
-                                                                   f"{message.author.mention} ghostpinged.\n \nNachricht:"
+            embed2 = discord.Embed(title=f"Ghost ping", description=f"{len(message.mentions)} User wurden von "
+                                                                   f"{message.author.mention} ghostpinged.\n \nNachrich"
+                                                                   f"t:"
                                                                    f"{message.content}", color=discord.Color.red())
-            await message.channel.send(embed=embed)
+            await message.channel.send(embed=embed2)
 
 
 @bot.slash_command(description="Startet Youtube in deinen Voicechannel")
@@ -971,8 +971,8 @@ async def rr(ctx, role: discord.Role):
                     rr = json.dump(rr, f)
                     msg = bot.get_message(msg_id)
                     await msg.add_reaction("✅")
-                    embed = discord.Embed(title="Erfolgreich erstellt!", color=discord.Color.green())
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    embed2 = discord.Embed(title="Erfolgreich erstellt!", color=discord.Color.green())
+                    await interaction.response.send_message(embed=embed2, ephemeral=True)
 
         modal = MyModal(title="Embed Builder")
         await ctx.send_modal(modal)
@@ -1022,6 +1022,38 @@ async def on_raw_reaction_remove(payload):
                 _channel = discord.utils.get(guild.channels, id=payload.channel_id)
                 await _channel.send('Ich habe keine Rechte um diese Rolle anderen zu geben oder sie wurde gelöscht!')
 
+# @bot.slash_command(description="Reporte einen Bug")
+# async def reportbug(ctx):
+
+   # class bugModal(discord.ui.Modal):
+       # def __init__(self, *args, **kwargs):
+           # super().__init__(
+               # discord.ui.InputText(
+               #     label="Bug Titel",
+              #      placeholder="zB: /event fehler!"),
+             #   discord.ui.InputText(
+            #        label="Bug Beschreibung",
+           #         placeholder="zB: Wenn ich /event mache steht da ein Fehler!",
+          #          style=discord.InputTextStyle.long),
+         #       *args,
+        #        **kwargs)
+
+       # async def callback(self, interaction: discord.Interaction):
+           # de = pytz.timezone('Europe/Berlin')
+           # embed = discord.Embed(
+            #    title=f"Bug Report von **LÜCKE** | Titel: **{self.children[0].value}**",
+           #     description=self.children[1].value,
+          #      color=discord.Color.red(),
+         #       timestamp=datetime.now().astimezone(tz=de))
+        #    message = await interaction.response.send_message(embed=embed)
+       #     messageid = message.id
+      #      print(messageid)
+     #       await message.add_reaction("✅")
+    #        await message.add_reaction("❌")
+
+   # modal = bugModal(title="Reporte einen Bug!")
+   # await ctx.send_modal(modal)
+
 
 @tasks.loop(seconds=1)
 async def vanity_task():
@@ -1060,7 +1092,7 @@ if __name__ == "__main__":
     bot.load_extension("cogs.lvlsystem")
     # bot.load_extension("cogs.knilzbot")
     # bot.load_extension("cogs.youtubeinfo")
-    bot.load_extension("cogs.admin")
+    # bot.load_extension("cogs.admin")
     # bot.load_extension("cogs.mmosystem")
     # bot.load_extension("cogs.afk")
     bot.load_extension("cogs.funcommands")
