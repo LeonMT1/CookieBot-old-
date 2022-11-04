@@ -1,0 +1,43 @@
+de = pytz.timezone('Europe/Berlin')
+    em = discord.Embed(
+        title='Member Leave',
+        description=f'**Nutzer**: {member.name}',
+        color=0xe67e22,
+        timestamp=datetime.now().astimezone(tz=de)
+    )
+    await bot.get_channel(825340653378338837).send(embed=em)
+
+await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (cookies, ctx.author.name))
+        await db.commit()
+
+CREATE TABLE IF NOT EXISTS users (
+                user_id TEXT PRIMARY KEY,
+                msg_count INTEGER DEFAULT 0,
+                xp INTEGER 0,
+                call_sec INTEGER DEFAULT 0,
+                cookies INTEGER DEFAULT 0)
+
+@bot.slash_command(description="Nutze diesen Command damit andere sehen das du AFK bist.")
+async def afk(ctx, grund: Option(str, description="Schreibe hier einen Grund...", default=None), message):
+    print(f"{ctx.author} hat /afk gemacht")
+    guild: discord.Guild = bot.get_guild(1016436920965939280)
+    rolle: discord.Role = guild.get_role(1037701738695761940)
+    if grund == None:
+        grund = "Du hast keinen Grund angegeben"
+    await ctx.respond(f"Du wurdest jetzt als AFK makiert für den grund: **{grund}**.", ephemeral=True)
+    await ctx.author.add_roles(rolle)
+    if grund == "Du hast keinen Grund angegeben":
+        grund = f"{ctx.author.name} hat keinen Grund angegeben"
+    mention = ctx.author.mention
+    print(mention)
+
+    @bot.event()
+    async def on_message(msg):
+        print(msg.mention)
+        if msg.mention == ctx.author.mention:
+            await ctx.author.remove_role(rolle)
+            await ctx.respond(f"Du wirst jetzt nichtmehr als AFK makiert. (Du wurdest für den Grund **{grund}** als AFK"
+                              f" makiert**")
+
+main token = MTAxNjQzNjU4NjM2NTMyOTQxOQ.G5gAXE.MN8vGH8_ygDNqyPiOp46PsDIbL7SQw-zmKwlBI
+test token = MTAzMzExMTk3NTczNzE4MDE4MA.GD4Dn8.SAuKkmt1VD_8klo2aikwRjptM_VSsrKIy4J-ew
