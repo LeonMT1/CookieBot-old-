@@ -21,7 +21,7 @@ intents.members = True
 
 activity = discord.Activity(type=discord.ActivityType.playing, name="mit Keksen")
 
-bot = discord.Bot(intents=intents, debug_guilds=[1016436920965939280, 724602228505313311], activity=activity)
+bot = discord.Bot(intents=intents, debug_guilds=None, activity=activity)
 
 # © 2022 - Martin B. ツ#2128
 GUILD = 1016436920965939280
@@ -532,6 +532,18 @@ async def aktivitaet(ctx,
     await bot.change_presence(activity=act, status=statusv)
     await ctx.respond("Die Aktivität wurde erfolgreich geändert", ephemeral=True)
 
+@bot.slash_command(description="Zeige dir Infos über diesen Server")
+async def serverinfo (ctx):
+    guild: discord.Guild = bot.get_guild(1016436920965939280)
+    embed = discord.Embed(title=f"{guild.name} Infos", description=f"Hier siehst du alle Details über den Server "
+                                                                   f"{guild.name}", color=discord.Color.random())
+    embed.add_field(name="Name", value=f"{guild.name} • {guild.id}", inline=False)
+    embed.add_field(name="Afk Channel", value=f"{guild.afk_channel} AFK Channel • {guild.afk_timeout} Timeout", inline=False)
+    embed.add_field(name="Member Count", value=f"{guild.member_count} Member", inline=False)
+    embed.add_field(name="Owner", value=f"{guild.owner} • {guild.owner_id}", inline=False)
+    embed.add_field(name="Erstellt am", value=f"{guild.created_at}", inline=False)
+    embed.set_thumbnail(url=guild.icon.url)
+    await ctx.respond(embed=embed)
 
 @bot.slash_command(description="Zeige Infos über einen User")
 async def userinfo(

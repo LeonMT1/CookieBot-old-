@@ -65,23 +65,33 @@ class FunCommands(commands.Cog):
             hodenkrebs = random.randint(1, 1000)
             goodordosent = random.randint(1, 2)
             cookies = random.randint(1, 7)
+            cookiesmuell = cookies + random.randint(1, 5)
+            user = guild.members
             eventgood = [f"Du hast eine Packung Cookies auf der Straße gefunden du hast dich umgeschaut ob dich jemand "
                          f"beobachtet... Als du festgestellt hat das dich niemand beobachtet hast du Lachend alle "
-                         f"Cookies mitgenommen es waren **{cookies}** cookies.", f"Du hast im Aldilie eine Cookie "
+                         f"Cookies mitgenommen es waren **{cookies}** Cookies.", f"Du hast im Aldilie eine Cookie "
                                                                                  f"Packung geklaut allerdings hat dich "
                                                                                  f"der Ladenbesitzer erwischt. Aber da "
                                                                                  f"er mitleid hatte hast du "
-                                                                                 f"**{cookies}** bekommen.",
+                                                                                 f"**{cookies}** Cookies bekommen.",
                          f"Du hast auf Onlycookies ein neues Video hochgeladen du wurdest allerdings gehackt aber du "
                          f"konntest trozdem **{cookies}** Cookies bekommen.",
                          f"Du hast einer Alten Oma über die Straße geholfen. Aus ihrer Tasche sind wärendesen {cookies}"
-                         f" Cookies gefallen. Du hast alle vor ihren Augen eingesammelt und bist abgehauen."]
+                         f" Cookies gefallen. Du hast alle vor ihren Augen eingesammelt und bist abgehauen.",
+                         f"Du bist nach Hause gegangen und hast im Müll etwas Cookie Artiges gesehen du hast geschaut "
+                         f"und es waren tatsächlich **{cookiesmuell}** Cookies im Müll du hollst alle raus und hast "
+                         f"jetzt **{cookies}** Cookies mehr, da {cookiesmuell - cookies} schlecht waren.",
+                         f"Du hast deine Cookies gezählt wie jeden morgen weil am Tag vorher {random.choice(user)}"]
 
             eventnotgood = [f"Du hast Elon Musk nach Twitter+ gefragt, er hatte dich mit seinem Waschbeken beworfen "
                             f"und dir sind **{cookies}** Cookies zerbrochen.", f"Du hast das neue Cyberpunk 2089 "
                                                                                f"gekauft allerdings ist es voller Bugs "
                                                                                f"und du raget und zerbichst "
-                                                                               f"**{cookies}** Cookies dabei."]
+                                                                               f"**{cookies}** Cookies dabei.",
+                            f"Du hast im Aldilie eine Cookie Packung geklaut allerdings hat dich der Ladenbesitzer "
+                            f"erwischt. Er hat dich verklagt und du musstest **{cookies}** Cookies strafe zahlen.",
+                            f"Du bist auf den Bürgersteig hingefallen da du noch Cookies in deiner Hosentasche hattest "
+                            f"sind **{cookies}** Cookies rausgerollt und wurden von einem Auto überfahren"]
             hodenkrebsembed = discord.Embed(title=f"{ctx.author.name} HAT HODENKREBS!", description="Du hast Absofort "
                                                                                                     "Hodenkrebs...",
                                             color=discord.Color.red())
