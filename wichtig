@@ -1,0 +1,21 @@
+de = pytz.timezone('Europe/Berlin')
+    em = discord.Embed(
+        title='Member Leave',
+        description=f'**Nutzer**: {member.name}',
+        color=0xe67e22,
+        timestamp=datetime.now().astimezone(tz=de)
+    )
+    await bot.get_channel(825340653378338837).send(embed=em)
+
+await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (cookies, ctx.author.name))
+        await db.commit()
+
+CREATE TABLE IF NOT EXISTS users (
+                user_id TEXT PRIMARY KEY,
+                msg_count INTEGER DEFAULT 0,
+                xp INTEGER 0,
+                call_sec INTEGER DEFAULT 0,
+                cookies INTEGER DEFAULT 0)
+
+main token = MTAxNjQzNjU4NjM2NTMyOTQxOQ.G5gAXE.MN8vGH8_ygDNqyPiOp46PsDIbL7SQw-zmKwlBI
+test token = MTAzMzExMTk3NTczNzE4MDE4MA.GD4Dn8.SAuKkmt1VD_8klo2aikwRjptM_VSsrKIy4J-ew

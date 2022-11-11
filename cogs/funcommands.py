@@ -4,8 +4,9 @@ import aiosqlite
 
 import discord
 import requests
+from discord import slash_command
 from discord.ext import commands
-from discord.commands import slash_command
+import discord.commands
 
 
 class FunCommands(commands.Cog):

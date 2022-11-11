@@ -1091,10 +1091,10 @@ async def vanity_task():
 if __name__ == "__main__":
     bot.load_extension("cogs.lvlsystem")
     # bot.load_extension("cogs.knilzbot")
-    # bot.load_extension("cogs.youtubeinfo")
     # bot.load_extension("cogs.admin")
     # bot.load_extension("cogs.mmosystem")
     # bot.load_extension("cogs.afk")
+    # bot.load_extension("cogs.games")
     bot.load_extension("cogs.funcommands")
     load_dotenv()
     bot.run(os.getenv("TESTTOKEN"))
