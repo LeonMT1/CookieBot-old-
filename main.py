@@ -535,13 +535,15 @@ async def aktivitaet(ctx,
 @bot.slash_command(description="Zeige dir Infos über diesen Server")
 async def serverinfo (ctx):
     guild: discord.Guild = bot.get_guild(1016436920965939280)
+    time = discord.utils.format_dt(guild.created_at, "R")
     embed = discord.Embed(title=f"{guild.name} Infos", description=f"Hier siehst du alle Details über den Server "
                                                                    f"{guild.name}", color=discord.Color.random())
     embed.add_field(name="Name", value=f"{guild.name} • {guild.id}", inline=False)
-    embed.add_field(name="Afk Channel", value=f"{guild.afk_channel} AFK Channel • {guild.afk_timeout} Timeout", inline=False)
+    embed.add_field(name="Afk Channel", value=f"{guild.afk_channel} AFK Channel • {guild.afk_timeout} Timeout",
+                    inline=False)
     embed.add_field(name="Member Count", value=f"{guild.member_count} Member", inline=False)
     embed.add_field(name="Owner", value=f"{guild.owner} • {guild.owner_id}", inline=False)
-    embed.add_field(name="Erstellt am", value=f"{guild.created_at}", inline=False)
+    embed.add_field(name="Erstellt", value=f"{time}", inline=False)
     embed.set_thumbnail(url=guild.icon.url)
     await ctx.respond(embed=embed)
 

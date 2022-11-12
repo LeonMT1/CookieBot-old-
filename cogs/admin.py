@@ -27,6 +27,32 @@ class Admin(commands.Cog):
         print("""
             admin.py         ✅""")
 
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        if payload.channel_id == 1040793076744061009:
+            if payload.emoji.name == "✅":
+                print("LEL")
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        if payload.channel_id == 1040793076744061009:
+            if payload.emoji.name == "❌":
+                print("LEL2")
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        if payload.channel_id == 1040793076744061009:
+            if payload.emoji.name == "🗑️":
+                print("LEL3")
+
+   # @slash_command(description="Reporte einen Bug")
+   # async def bugreport(self, ctx, bugtitle: Option(str, description="Gebe deinen Bug einen Titel"),
+   #                     bugdesc: Option(str, description="Beschreibe hier deinen Bug")):
+   #     embed = discord.Embed(title=f"Bug Report von {ctx.author.name} | Title: {bugtitle}", description=f"""
+#Beschreibung: {bugdesc}""")
+     #   await self.bot.get_channel(1016436921750270034).send(embed=embed)
+
+
     @slash_command(description="Reporte einen Bug")
     async def reportbug(self, ctx):
         modal = embedModal(title="Mache ein Embed")
@@ -50,13 +76,26 @@ class embedModal(discord.ui.Modal):
 
     async def callback(self, interaction: discord.Interaction):
         de = pytz.timezone('Europe/Berlin')
+        member = interaction.user.name
         embed = discord.Embed(
-            title=f"Bug Report von **LÜCKE** | Titel: **{self.children[0].value}**",
+            title=f"Bug Report von {member} | Titel: **{self.children[0].value}**",
             description=self.children[1].value,
             color=discord.Color.red(),
             timestamp=datetime.now().astimezone(tz=de))
-        message = await interaction.response.send_message(embed=embed)
-        messgaeid = message.id
-        print(messgaeid)
-        await messgaeid.add_reaction("✅")
-        await messgaeid.add_reaction("❌")
+        interaction = await interaction.response.send_message(embed=embed)
+        message = await interaction.original_response()
+        await message.add_reaction("✅")
+        await message.add_reaction("❌")
+        dictionary = {message: message.id}
+
+        with open("bug.json", "w") as outfile:
+            json.dump(dictionary, outfile)
+
+    async def on_raw_reaction_add(self, payload):
+        with open("bug.json", "r") as f:
+            json.object = json.loads(f.read())
+        message = (json_object["message"])
+        if payload.channel_id == 963728113920008212:
+            if payload.message_id == message.id:
+                if payload.emoji.name == "✅":
+                     print("LEL")
