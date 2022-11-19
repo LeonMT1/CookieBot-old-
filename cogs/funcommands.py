@@ -15,7 +15,7 @@ class FunCommands(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await asyncio.sleep(0.7)
+        await asyncio.sleep(0.8)
         print("""
             funcommands.py   ✅
             ------------------------""")
@@ -23,6 +23,8 @@ class FunCommands(commands.Cog):
     @slash_command(description="Schlage jemanden")
     @commands.cooldown(1, 3600, commands.BucketType.user)
     async def slap(self, ctx, member: discord.Member):
+        guild: discord.Guild = self.bot.get_guild(724602228505313311)
+        muterolle: discord.Role = guild.get_role(1043532505887809577)
         key = "AIzaSyDHmg80hvYQrUvrTEee8ARuq9X-6hIE1EM"
         params = {"q": "slap",
                   "key": key,
@@ -54,7 +56,8 @@ class FunCommands(commands.Cog):
                                    description=f"RÄCHE DICH JETZT INDEM DU auf den **DER COOKIE CLAN** DC gehst und in "
                                                f"https://discord.com/channels/724602228505313311/963740046995890176 "
                                                f"/slap {ctx.author} machst 😉")
-        await member.send(embed=geschlagen)
+        if muterolle not in ctx.author.roles:
+            await member.send(embed=geschlagen)
 
     @slash_command(description="Löse ein zufälliges Event aus. uiii")
     @commands.cooldown(1, 3600, commands.BucketType.user)
@@ -123,6 +126,8 @@ class FunCommands(commands.Cog):
     async def hack(self, ctx, *, member: discord.Member):
         async with aiosqlite.connect("level.db") as db:
             print(f"{ctx.author} hat /hack gemacht")
+            guild: discord.Guild = self.bot.get_guild(724602228505313311)
+            muterolle: discord.Role = guild.get_role(1043532505887809577)
             async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (member.name,)) as cursor:
                 result = await cursor.fetchone()
             if result == 0:
@@ -209,7 +214,8 @@ Häufigeste Überweisung an: {random.choice(anbieter)}
 Kontostand: {result[0]} Cookies""", color=discord.Color.green())
             embed.set_thumbnail(url=ctx.author.display_avatar.url)
             await message.edit(embed=embed)
-            await member.send(f"""Du wurdest von {ctx.author} gehackt, er hat dir {cookies} Cookies geklaut xD.
+            if muterolle not in member.roles:
+                await member.send(f"""Du wurdest von {ctx.author} gehackt, er hat dir {cookies} Cookies geklaut xD.
 Du kannst auch alle 12h jemand anderen Hacken und davon Cookies bekommen!""")
 
 

@@ -878,7 +878,7 @@ async def time(ctx, land: Option(str, description="Wähle ein Land aus", default
                                           " Brazil, Canada, Chile, Cuba, Egypt, Eire, Greenwich, Hongkong, Iceland, "
                                           "Indian, Iran, Israel,Jamaica, Japan, Kwajalein, Libya, Mexico, Navajo, "
                                           "Pacific,Poland, Portugal, Singapore, Turkey, US, Zulu",
-                              color=discord.Color.black())
+                              color=discord.Color.random())
         await ctx.respond(embed=embed)
         return
     if land == "Deutschland":
@@ -1233,6 +1233,7 @@ if __name__ == "__main__":
     # bot.load_extension("cogs.afk")
     bot.load_extension("cogs.mathe")
     # bot.load_extension("cogs.ticketsystem")
+    bot.load_extension("cogs.settings")
     bot.load_extension("cogs.funcommands")
     load_dotenv()
     bot.run(os.getenv("TESTTOKEN"))
