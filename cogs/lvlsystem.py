@@ -33,7 +33,9 @@ class LVLSystem(commands.Cog):
                 msg_count INTEGER DEFAULT 0,
                 xp INTEGER DEFAULT 0,
                 cookies INTEGER DEFAULT 0,
-                call_sec INTEGER DEFAULT 0)""")
+                call_sec INTEGER DEFAULT 0,
+                mathe_xp INTEGER DEFAULT 0,
+                mathe_geschaft INTEGER DEFAULT 0)""")
             print("""
             ---Datein------Status---
             main.py          ✅
@@ -98,8 +100,13 @@ class LVLSystem(commands.Cog):
                     as cursor:
                 call_sec = await cursor.fetchone()
 
+           # async with db.execute("SELECT mathe_xp FROM users WHERE user_id = ?", (user.name,)) as cursor:
+            #    mathe_xp = await cursor.fetchone()
+
         xp = await self.get_xp(user.name)
         lvl = self.get_level(xp)
+
+       # mathe_lvl = self.get_level(mathe_xp)
 
         embed = discord.Embed(title=f"{user.name} Rank", color=discord.Color.random(),
                               description=f"""
@@ -107,12 +114,16 @@ class LVLSystem(commands.Cog):
 {user.name} war **{call_sec[0]}** Sekunden in Talks.
 {user.name} hat **{cookies[0]}** Cookies.
 {user.name} hat **{msg_count[0]}** Narichten geschrieben.""")
+#        embed.add_field(name="Mathe", value=f"""
+#Mathe XP: {mathe_xp}
+#Mathe LVL: {mathe_lvl}""")
         embed.set_thumbnail(url=user.display_avatar.url)
         embed.set_footer(text=f"Angefordert von {ctx.author}", icon_url=ctx.author.display_avatar.url)
         await ctx.respond(embed=embed)
 
     @slash_command()
-    async def leaderboard(self, ctx, leaderboard: Option(str, choices=["Cookies", "Narichten", "XP", "Talk"],
+    async def leaderboard(self, ctx, leaderboard: Option(str, choices=["Cookies", "Narichten", "XP", "Talk",
+                                                                       "Mathe (sneak peak)"],
                                                          description="Wähle eine Leaderboard aus"),
                           member: Option(str, description="Sage wie viele Member angezeigt werden sollen", default=10)):
         desc = ""
@@ -154,6 +165,18 @@ class LVLSystem(commands.Cog):
 
                 embed = discord.Embed(title=f"**{leaderboard} Rangliste**", description=desc,
                                       color=discord.Color.green())
+                await ctx.respond(embed=embed)
+                return
+
+           # if leaderboard == "Mathe":
+            #    async with db.execute("SELECT user_id, mathe_xp FROM users WHERE xp > 0 ORDER BY xp DESC LIMIT ?",
+             #                         (member,)) as cursor:
+              #      async for user_id, mathe_xp in cursor:
+               #         desc += f"{counter}. **{user_id}** - **{mathe_xp}** {leaderboard}\n"
+                #        counter += 1
+
+                embed = discord.Embed(title=f"**{leaderboard} Rangliste**", description=desc,
+                                      color=discord.Color.blue())
                 await ctx.respond(embed=embed)
                 return
 

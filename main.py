@@ -40,6 +40,7 @@ async def on_ready():
         color=discord.Color.green(),
         timestamp=datetime.now().astimezone(tz=de))
     vanity_task.start()
+    await asyncio.sleep(1)
     await bot.get_channel(825340653378338837).send(embed=online)
 
 
@@ -72,6 +73,7 @@ async def on_raw_reaction_add(payload):
 @bot.event
 async def on_message(msg):
     print(msg.channel)
+
 
 player1 = ""
 player2 = ""
@@ -508,13 +510,13 @@ async def on_application_command_error(ctx, error):
 @bot.slash_command(description="Aktivität vom Bot verändern", name="aktivität")
 @commands.cooldown(1, 10, commands.BucketType.guild)
 async def aktivitaet(ctx,
-                    typ: Option(str, choices=["game", "stream"], description="Wähle eine Aktivität aus"),
-                    name: Option(str, description="Schreibe hier den Namen der Aktiviät hin"),
-                    status: Option(str, description="Welchen online Status soll der Bot haben?",
-                                   choices=["online", "abwesend", "Bitte nicht Stören", "offline"]),
-                    streamer: Option(str, default='https://twitch.tv/lado5670_lul',
-                                     description="Gib hier den Kanalnamen ein (komplett klein)")
-                    ):
+                     typ: Option(str, choices=["game", "stream"], description="Wähle eine Aktivität aus"),
+                     name: Option(str, description="Schreibe hier den Namen der Aktiviät hin"),
+                     status: Option(str, description="Welchen online Status soll der Bot haben?",
+                                    choices=["online", "abwesend", "Bitte nicht Stören", "offline"]),
+                     streamer: Option(str, default='https://twitch.tv/lado5670_lul',
+                                      description="Gib hier den Kanalnamen ein (komplett klein)")
+                     ):
     global act
     print(f"{ctx.author.name} hat /aktivität gemacht")
     if typ == "game":
@@ -532,9 +534,10 @@ async def aktivitaet(ctx,
     await bot.change_presence(activity=act, status=statusv)
     await ctx.respond("Die Aktivität wurde erfolgreich geändert", ephemeral=True)
 
+
 @bot.slash_command(description="Zeige dir Infos über diesen Server")
-async def serverinfo (ctx):
-    guild: discord.Guild = bot.get_guild(1016436920965939280)
+async def serverinfo(ctx):
+    guild: discord.Guild = bot.get_guild(724602228505313311)
     time = discord.utils.format_dt(guild.created_at, "R")
     embed = discord.Embed(title=f"{guild.name} Infos", description=f"Hier siehst du alle Details über den Server "
                                                                    f"{guild.name}", color=discord.Color.random())
@@ -546,6 +549,7 @@ async def serverinfo (ctx):
     embed.add_field(name="Erstellt", value=f"{time}", inline=False)
     embed.set_thumbnail(url=guild.icon.url)
     await ctx.respond(embed=embed)
+
 
 @bot.slash_command(description="Zeige Infos über einen User")
 async def userinfo(
@@ -833,6 +837,123 @@ async def gif(ctx, search: Option(str, description="Schreibe hier das rein nach 
     await ctx.respond(embed=embed)
 
 
+@bot.slash_command(description="Hole deine Zinsen ab!")
+@commands.cooldown(1, 86400, commands.BucketType.user)
+async def zinsen(ctx):
+    async with aiosqlite.connect("level.db") as db:
+        print(f"{ctx.author.name} hat /zinsen gemacht")
+        de = pytz.timezone('Europe/Berlin')
+        datum = datetime.now().astimezone(tz=de).strftime("%d")
+        datum2 = 30 - int(datum)
+        print(datum)
+        if datum == 1:
+            async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (ctx.author.name,)) as cursor:
+                result = await cursor.fetchone()
+                zinsen = result[0] * 0.10
+            await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (zinsen, ctx.author.name))
+            await db.commit()
+            embederfolgreich = discord.Embed(title=f"10% Zinsen abgeholt!", description=f"Du hast deine Zinsen abgeholt!",
+                                             color=discord.Color.green())
+            embederfolgreich.add_field(name="Rechnung", value=f"""
+Ehemaliger Konto stand: **{result[0]}**
+Zinsen:                +**{zinsen}**
+                        _______
+Neuer Konto stand:     **{result[0] + zinsen}**""")
+            await ctx.respond(embed=embederfolgreich)
+            return
+
+        embederfolgreich = discord.Embed(title="Keine Zinsen für dich!",
+                                         description=f"Du kannst nur am 1. des Monats deine Zinsen abholen! "
+                                                     f"Du kannst deine Zinsen in ca **{datum2} Tagen** abholen!",
+                                         color=discord.Color.red())
+        await ctx.respond(embed=embederfolgreich)
+
+
+@bot.slash_command()
+async def time(ctx, land: Option(str, description="Wähle ein Land aus", default=None)):
+    print(f"{ctx.author.name} hat /time gemacht")
+    if land is None:
+        embed = discord.Embed(title="Diese Länder gibt es bei diesen Command!",
+                              description="Deutschland, ️Afrika, Amerika, Antarctica, Arctic, Asia, Atlantic, Australia,"
+                                          " Brazil, Canada, Chile, Cuba, Egypt, Eire, Greenwich, Hongkong, Iceland, "
+                                          "Indian, Iran, Israel,Jamaica, Japan, Kwajalein, Libya, Mexico, Navajo, "
+                                          "Pacific,Poland, Portugal, Singapore, Turkey, US, Zulu",
+                              color=discord.Color.black())
+        await ctx.respond(embed=embed)
+        return
+    if land == "Deutschland":
+        land = pytz.timezone('Europe/Berlin')
+    if land == "Afrika":
+        land = pytz.timezone('Africa/Johannesburg')
+    if land == "Amerika":
+        land = pytz.timezone('America/New_York')
+    if land == "Antarctica":
+        land = pytz.timezone('Antarctica/Casey')
+    if land == "Arctic":
+        land = pytz.timezone('Arctic/Longyearbyen')
+    if land == "Asia":
+        land = pytz.timezone('Asia/Kolkata')
+    if land == "Atlantic":
+        land = pytz.timezone('Atlantic/Reykjavik')
+    if land == "Australia":
+        land = pytz.timezone('Australia/Sydney')
+    if land == "Brazil":
+        land = pytz.timezone('Brazil/East')
+    if land == "Canada":
+        land = pytz.timezone('Canada/Pacific')
+    if land == "Chile":
+        land = pytz.timezone('Chile/Continental')
+    if land == "Cuba":
+        land = pytz.timezone('Cuba')
+    if land == "Egypt":
+        land = pytz.timezone('Egypt')
+    if land == "Eire":
+        land = pytz.timezone('Eire')
+    if land == "Greenwich":
+        land = pytz.timezone('Greenwich')
+    if land == "Hongkong":
+        land = pytz.timezone('Hongkong')
+    if land == "Iceland":
+        land = pytz.timezone('Iceland')
+    if land == "Indian":
+        land = pytz.timezone('Indian/Christmas')
+    if land == "Iran":
+        land = pytz.timezone('Iran')
+    if land == "Israel":
+        land = pytz.timezone('Israel')
+    if land == "Jamaica":
+        land = pytz.timezone('Jamaica')
+    if land == "Japan":
+        land = pytz.timezone('Japan')
+    if land == "Kwajalein":
+        land = pytz.timezone('Kwajalein')
+    if land == "Libya":
+        land = pytz.timezone('Libya')
+    if land == "Mexico":
+        land = pytz.timezone('Mexico/BajaNorte')
+    if land == "Navajo":
+        land = pytz.timezone('Navajo')
+    if land == "Pacific":
+        land = pytz.timezone('Pacific/Guadalcanal')
+    if land == "Poland":
+        land = pytz.timezone('Poland')
+    if land == "Portugal":
+        land = pytz.timezone('Portugal')
+    if land == "Singapore":
+        land = pytz.timezone('Singapore')
+    if land == "Turkey":
+        land = pytz.timezone('Turkey')
+    if land == "US":
+        land = pytz.timezone('US/Eastern')
+    if land == "Zulu":
+        land = pytz.timezone('Zulu')
+    embed = discord.Embed(title=f"Aktuelle Zeit {land}",
+                          description=datetime.now().astimezone(tz=land).strftime("%H:%M:%S"),
+                          color=discord.Color.random())
+    embed.add_field(name=f"Aktuelles Datum {land}", value=datetime.now().astimezone(tz=land).strftime("%d.%m.%Y"))
+    await ctx.respond(embed=embed)
+
+
 @bot.event
 async def on_message_delete(message: discord.Message):
     if message.mentions != 0:
@@ -849,9 +970,9 @@ async def on_message_delete(message: discord.Message):
                     await message.channel.send(embed=embed)
         else:
             embed2 = discord.Embed(title=f"Ghost ping", description=f"{len(message.mentions)} User wurden von "
-                                                                   f"{message.author.mention} ghostpinged.\n \nNachrich"
-                                                                   f"t:"
-                                                                   f"{message.content}", color=discord.Color.red())
+                                                                    f"{message.author.mention} ghostpinged.\n \nNachrich"
+                                                                    f"t:"
+                                                                    f"{message.content}", color=discord.Color.red())
             await message.channel.send(embed=embed2)
 
 
@@ -1036,37 +1157,38 @@ async def on_raw_reaction_remove(payload):
                 _channel = discord.utils.get(guild.channels, id=payload.channel_id)
                 await _channel.send('Ich habe keine Rechte um diese Rolle anderen zu geben oder sie wurde gelöscht!')
 
+
 # @bot.slash_command(description="Reporte einen Bug")
 # async def reportbug(ctx):
 
-   # class bugModal(discord.ui.Modal):
-       # def __init__(self, *args, **kwargs):
-           # super().__init__(
-               # discord.ui.InputText(
-               #     label="Bug Titel",
-              #      placeholder="zB: /event fehler!"),
-             #   discord.ui.InputText(
-            #        label="Bug Beschreibung",
-           #         placeholder="zB: Wenn ich /event mache steht da ein Fehler!",
-          #          style=discord.InputTextStyle.long),
-         #       *args,
-        #        **kwargs)
+# class bugModal(discord.ui.Modal):
+# def __init__(self, *args, **kwargs):
+# super().__init__(
+# discord.ui.InputText(
+#     label="Bug Titel",
+#      placeholder="zB: /event fehler!"),
+#   discord.ui.InputText(
+#        label="Bug Beschreibung",
+#         placeholder="zB: Wenn ich /event mache steht da ein Fehler!",
+#          style=discord.InputTextStyle.long),
+#       *args,
+#        **kwargs)
 
-       # async def callback(self, interaction: discord.Interaction):
-           # de = pytz.timezone('Europe/Berlin')
-           # embed = discord.Embed(
-            #    title=f"Bug Report von **LÜCKE** | Titel: **{self.children[0].value}**",
-           #     description=self.children[1].value,
-          #      color=discord.Color.red(),
-         #       timestamp=datetime.now().astimezone(tz=de))
-        #    message = await interaction.response.send_message(embed=embed)
-       #     messageid = message.id
-      #      print(messageid)
-     #       await message.add_reaction("✅")
-    #        await message.add_reaction("❌")
+# async def callback(self, interaction: discord.Interaction):
+# de = pytz.timezone('Europe/Berlin')
+# embed = discord.Embed(
+#    title=f"Bug Report von **LÜCKE** | Titel: **{self.children[0].value}**",
+#     description=self.children[1].value,
+#      color=discord.Color.red(),
+#       timestamp=datetime.now().astimezone(tz=de))
+#    message = await interaction.response.send_message(embed=embed)
+#     messageid = message.id
+#      print(messageid)
+#       await message.add_reaction("✅")
+#        await message.add_reaction("❌")
 
-   # modal = bugModal(title="Reporte einen Bug!")
-   # await ctx.send_modal(modal)
+# modal = bugModal(title="Reporte einen Bug!")
+# await ctx.send_modal(modal)
 
 
 @tasks.loop(seconds=1)
@@ -1102,12 +1224,15 @@ async def vanity_task():
                     )
                     await log.send(embed=embed)
 
+
 if __name__ == "__main__":
     bot.load_extension("cogs.lvlsystem")
     # bot.load_extension("cogs.knilzbot")
     # bot.load_extension("cogs.admin")
     # bot.load_extension("cogs.mmosystem")
     # bot.load_extension("cogs.afk")
+    bot.load_extension("cogs.mathe")
+    # bot.load_extension("cogs.ticketsystem")
     bot.load_extension("cogs.funcommands")
     load_dotenv()
     bot.run(os.getenv("TESTTOKEN"))

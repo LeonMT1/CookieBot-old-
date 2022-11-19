@@ -15,7 +15,7 @@ class FunCommands(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await asyncio.sleep(0.6)
+        await asyncio.sleep(0.7)
         print("""
             funcommands.py   ✅
             ------------------------""")
@@ -57,6 +57,7 @@ class FunCommands(commands.Cog):
         await member.send(embed=geschlagen)
 
     @slash_command(description="Löse ein zufälliges Event aus. uiii")
+    @commands.cooldown(1, 3600, commands.BucketType.user)
     async def event(self, ctx):
         async with aiosqlite.connect("level.db") as db:
             print(f"{ctx.author} hat /event gemacht")
@@ -81,7 +82,8 @@ class FunCommands(commands.Cog):
                          f"Du bist nach Hause gegangen und hast im Müll etwas Cookie Artiges gesehen du hast geschaut "
                          f"und es waren tatsächlich **{cookiesmuell}** Cookies im Müll du hollst alle raus und hast "
                          f"jetzt **{cookies}** Cookies mehr, da {cookiesmuell - cookies} schlecht waren.",
-                         f"Du hast deine Cookies gezählt wie jeden morgen weil am Tag vorher {random.choice(user)}"]
+                         f"Du hast deine Cookies gezählt wie jeden morgen weil am Tag vorher {random.choice(user)} da "
+                         f"war. Dann hast du festgestellt das sie dir **{cookies} dagelassen hat"]
 
             eventnotgood = [f"Du hast Elon Musk nach Twitter+ gefragt, er hatte dich mit seinem Waschbeken beworfen "
                             f"und dir sind **{cookies}** Cookies zerbrochen.", f"Du hast das neue Cyberpunk 2089 "
@@ -91,7 +93,9 @@ class FunCommands(commands.Cog):
                             f"Du hast im Aldilie eine Cookie Packung geklaut allerdings hat dich der Ladenbesitzer "
                             f"erwischt. Er hat dich verklagt und du musstest **{cookies}** Cookies strafe zahlen.",
                             f"Du bist auf den Bürgersteig hingefallen da du noch Cookies in deiner Hosentasche hattest "
-                            f"sind **{cookies}** Cookies rausgerollt und wurden von einem Auto überfahren"]
+                            f"sind **{cookies}** Cookies rausgerollt und wurden von einem Auto überfahren",
+                            f"Du hast deine Cookies gezählt wie jeden morgen weil am Tag vorher {random.choice(user)} "
+                            f"da war. Dann hast du festgestellt das sie dir **{cookies} hinterhältig geklaut hat!"]
             hodenkrebsembed = discord.Embed(title=f"{ctx.author.name} HAT HODENKREBS!", description="Du hast Absofort "
                                                                                                     "Hodenkrebs...",
                                             color=discord.Color.red())
@@ -119,6 +123,17 @@ class FunCommands(commands.Cog):
     async def hack(self, ctx, *, member: discord.Member):
         async with aiosqlite.connect("level.db") as db:
             print(f"{ctx.author} hat /hack gemacht")
+            async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (member.name,)) as cursor:
+                result = await cursor.fetchone()
+            if result == 0:
+                ehre = discord.Embed(title="Der Nutzer hat keine Erhackbaren Kekse!",
+                                     description=f"{member.name} hat keine Kekse dadurch hast du die Bank gehackt diese"
+                                                 f" hat dir die Polizei auf den Hals gejagt. Dadurch hast du **5** "
+                                                 f"Cookies Verloren!")
+                await ctx.respond(embed=ehre)
+                await db.execute("UPDATE users SET cookies = cookies - 5 WHERE user_id = ?", (ctx.author.name,))
+                await db.commit()
+                return
             if member is ctx.author:
                 dumm = discord.Embed(title="Kann es sein das du dumm bist?", description="Du hast auf Google nach den "
                                                                                          "besten Hacker Tools gesucht "
@@ -185,9 +200,6 @@ class FunCommands(commands.Cog):
             if cookies == 0:
                 await message.edit(content="Der Hack ist leider fehlgeschlagen")
                 return
-            async with db.execute("SELECT cookies FROM users WHERE user_id = ?",
-                                  (member.name,)) as cursor:
-                result = await cursor.fetchone()
             embed = discord.Embed(title="Erfolgreich abgeschloßen!", description=f"""
 Du hast von **{member.mention}** **{cookies}** Cookies erhackt!
 Email: {member.name}{random.choice(emails)}{random.choice(email)}
