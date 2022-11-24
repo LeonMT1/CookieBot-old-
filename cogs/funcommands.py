@@ -56,7 +56,7 @@ class FunCommands(commands.Cog):
                                    description=f"RÄCHE DICH JETZT INDEM DU auf den **DER COOKIE CLAN** DC gehst und in "
                                                f"https://discord.com/channels/724602228505313311/963740046995890176 "
                                                f"/slap {ctx.author} machst 😉")
-        if muterolle not in ctx.author.roles:
+        if muterolle in ctx.author.roles:
             await member.send(embed=geschlagen)
 
     @slash_command(description="Löse ein zufälliges Event aus. uiii")
@@ -86,7 +86,20 @@ class FunCommands(commands.Cog):
                          f"und es waren tatsächlich **{cookiesmuell}** Cookies im Müll du hollst alle raus und hast "
                          f"jetzt **{cookies}** Cookies mehr, da {cookiesmuell - cookies} schlecht waren.",
                          f"Du hast deine Cookies gezählt wie jeden morgen weil am Tag vorher {random.choice(user)} da "
-                         f"war. Dann hast du festgestellt das sie dir **{cookies} dagelassen hat"]
+                         f"war. Dann hast du festgestellt das sie/er/es dir **{cookies}** dagelassen hat",
+                         f"Du bist in den Wald gegangen und hast dort eine Kiste gefunden. In der Kiste waren "
+                         f"**{cookies}** Cookies. Du hast sie genommen und bist abgehauen",
+                         f"Jemand hat dir **{cookies}** Cookies geschenkt. Du hast dich gefreut und hast sie genommen",
+                         f"Jemand hat dich gefragt ob du **{cookies}** Cookies haben willst oder ob er jemand anderen "
+                         f"doppelt geben soll. Du hast gesagt das du die Cookies haben willst und hast sie bekommen",
+                         f"Eine Person hat dir **{cookies}** Cookies geschenkt. Du hast dich gefreut und hast sie "
+                         f"genommen",
+                         f"Im Internet hast du eine Seite gefunden in der behauptet wurde das du **{cookies}** Cookies "
+                         f"bekommen kannst. Du hast dich angemeldet und hast die Cookies bekommen",
+                         f"In der Schule hast du einen Kuchen gebacken und hast ihn mitgenommen. Als du ihn essen "
+                         f"wolltest hast du festgestellt das es **{cookies}** Cookies waren",
+                         f"Die Oma die vorne an der Kasse war hat **{cookies}** Cookies verloren. Du hast sie "
+                         f"aufgelesen und hast sie genommen"]
 
             eventnotgood = [f"Du hast Elon Musk nach Twitter+ gefragt, er hatte dich mit seinem Waschbeken beworfen "
                             f"und dir sind **{cookies}** Cookies zerbrochen.", f"Du hast das neue Cyberpunk 2089 "
@@ -98,7 +111,24 @@ class FunCommands(commands.Cog):
                             f"Du bist auf den Bürgersteig hingefallen da du noch Cookies in deiner Hosentasche hattest "
                             f"sind **{cookies}** Cookies rausgerollt und wurden von einem Auto überfahren",
                             f"Du hast deine Cookies gezählt wie jeden morgen weil am Tag vorher {random.choice(user)} "
-                            f"da war. Dann hast du festgestellt das sie dir **{cookies} hinterhältig geklaut hat!"]
+                            f"da war. Dann hast du festgestellt das sie/er/es dir **{cookies}** hinterhältig geklaut "
+                            f"hat!", f"Du bist zu McDonalds gegangen und hast dir einen McFlurry geholt. Als du "
+                            f"zurückkamst war dein McFlurry weg und du hast **{cookies}** Cookies verloren.",
+                            f"{random.choice(user)} hat dir **{cookies}** Cookies geklaut. Allerdings ist er "
+                            f"gestollpert und alle sind zerbrochen",
+                            f"Etwas hat dir **{cookies}** Cookies geklaut. Du hast es nicht gesehen aber du hast "
+                            f"festgestellt das es ein Hund war. Du hast dich gefreut das es ein Hund war und hast "
+                            f"ihn weitergefüttert",
+                            f"Deine Mutter hat dir **{cookies}** Cookies geklaut. Du hast sie gefragt warum sie das "
+                            f"getan hat. Sie hat gesagt das sie es für dich getan hat weil sie dich liebt. Du hast "
+                            f"dir gedacht das sie es für sich selbst getan hat und hast sie verprügelt "
+                            f"(that escalated quickly)",
+                            f"Alle deine Cookies sind in der Waschmaschine gelandet. Du hast sie rausgeholt und alle "
+                            f"**{cookies}** Cookies waren kaputt",
+                            f"Im Internet hast du eine Seite gefunden in der behauptet wurde das du **{cookies}** "
+                            f"Cookies bekommen kannst. Du hast dich angemeldet und wurdest gescammt",
+                            f"Oben auf dem Dach hast du eine Kiste gefunden. In der Kiste waren **{cookies}** Cookies. "
+                            f"Du hast sie genommen und hast sie runtergeworfen. Sie sind alle kaputt gegangen"]
             hodenkrebsembed = discord.Embed(title=f"{ctx.author.name} HAT HODENKREBS!", description="Du hast Absofort "
                                                                                                     "Hodenkrebs...",
                                             color=discord.Color.red())
@@ -214,7 +244,7 @@ Häufigeste Überweisung an: {random.choice(anbieter)}
 Kontostand: {result[0]} Cookies""", color=discord.Color.green())
             embed.set_thumbnail(url=ctx.author.display_avatar.url)
             await message.edit(embed=embed)
-            if muterolle not in member.roles:
+            if muterolle in member.roles:
                 await member.send(f"""Du wurdest von {ctx.author} gehackt, er hat dir {cookies} Cookies geklaut xD.
 Du kannst auch alle 12h jemand anderen Hacken und davon Cookies bekommen!""")
 

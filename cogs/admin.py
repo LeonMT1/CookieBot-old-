@@ -27,75 +27,32 @@ class Admin(commands.Cog):
         print("""
             admin.py         ✅""")
 
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload):
-        if payload.channel_id == 1040793076744061009:
-            if payload.emoji.name == "✅":
-                print("LEL")
-
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload):
-        if payload.channel_id == 1040793076744061009:
-            if payload.emoji.name == "❌":
-                print("LEL2")
-
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload):
-        if payload.channel_id == 1040793076744061009:
-            if payload.emoji.name == "🗑️":
-                print("LEL3")
-
-   # @slash_command(description="Reporte einen Bug")
-   # async def bugreport(self, ctx, bugtitle: Option(str, description="Gebe deinen Bug einen Titel"),
-   #                     bugdesc: Option(str, description="Beschreibe hier deinen Bug")):
-   #     embed = discord.Embed(title=f"Bug Report von {ctx.author.name} | Title: {bugtitle}", description=f"""
-#Beschreibung: {bugdesc}""")
-     #   await self.bot.get_channel(1016436921750270034).send(embed=embed)
-
-
-    @slash_command(description="Reporte einen Bug")
-    async def reportbug(self, ctx):
-        modal = embedModal(title="Mache ein Embed")
-        await ctx.send_modal(modal)
+    @slash_command()
+    async def bug_report(self, ctx):
+        await ctx.respond("Wir haben dein Bug erhalten und werden ihn so schnell wie möglich beheben. "
+                          "Vielen Dank für deine Mithilfe!")
 
 def setup(bot):
     bot.add_cog(Admin(bot))
 
-class embedModal(discord.ui.Modal):
+class TutorialModal(discord.ui.Modal):
     def __init__(self, *args, **kwargs):
         super().__init__(
             discord.ui.InputText(
                 label="Bug Titel",
-                placeholder="zB: /event fehler!"),
+                placeholder="z.B Bug bei /events"),
             discord.ui.InputText(
                 label="Bug Beschreibung",
-                placeholder="zB: Wenn ich /event mache steht da ein Fehler!",
+                placeholder="z.B wenn ich /events eingebe, dann passiert nichts",
                 style=discord.InputTextStyle.long),
             *args,
             **kwargs)
 
-    async def callback(self, interaction: discord.Interaction):
-        de = pytz.timezone('Europe/Berlin')
-        member = interaction.user.name
+    async def callback(self, interaction):
+        guild: discord.Guild = self.bot.get_guild(1016436920965939280)
+        rolle: discord.channel = guild.get_role(1033889262246035456)
         embed = discord.Embed(
-            title=f"Bug Report von {member} | Titel: **{self.children[0].value}**",
+            title=self.children[0].value,
             description=self.children[1].value,
-            color=discord.Color.red(),
-            timestamp=datetime.now().astimezone(tz=de))
-        interaction = await interaction.response.send_message(embed=embed)
-        message = await interaction.original_response()
-        await message.add_reaction("✅")
-        await message.add_reaction("❌")
-        dictionary = {message: message.id}
-
-        with open("bug.json", "w") as outfile:
-            json.dump(dictionary, outfile)
-
-    async def on_raw_reaction_add(self, payload):
-        with open("bug.json", "r") as f:
-            json.object = json.loads(f.read())
-        message = (json_object["message"])
-        if payload.channel_id == 963728113920008212:
-            if payload.message_id == message.id:
-                if payload.emoji.name == "✅":
-                     print("LEL")
+            color=discord.Color.red())
+        await interaction.response.send_message(embed=embed)

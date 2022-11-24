@@ -29,6 +29,11 @@ STATUS_ROLE = 1033889262246035456
 STATUS_TEXT = "https://discord.gg/yaVeqUPhVE"
 LOG_CHANNEL = 1016436921750270034
 
+GUILD_ID = 1016436920965939280 # Server ID eintragen!
+TEAM_ROLE = 1022176701448458270 # Die Rolle, welches die Tickets sehen soll!
+TICKET_CHANNEL = 1045440415337295982 # Der Channel, wo Tickets geöffnet werden sollen!
+CATEGORY_ID = 1045440313881280593 # Die Kategorie, wo die Tickets erstellt werden sollen!
+
 
 @bot.event
 async def on_ready():
