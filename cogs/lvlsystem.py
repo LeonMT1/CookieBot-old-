@@ -61,7 +61,15 @@ class LVLSystem(commands.Cog):
             if not message.guild:
                 return
             xp = random.randint(15, 25)
+            rndm = random.randint(1, 100)
+            glückembed = discord.Embed(title="Kleine Belhonung ;)",
+                                       description=f"{message.author.name} hat {xp} Cookies bekommen da er aktiv am "
+                                                   f"Chat teilgenommen hast!", color=discord.Color.green())
 
+            if rndm == 1:
+                await message.channel.send(embed=glückembed)
+                await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (xp, message.author.name))
+                await db.commit()
             await db.execute("INSERT OR IGNORE INTO users (user_id) VALUES (?)", (message.author.name,))
             await db.execute("UPDATE users SET msg_count = msg_count + 1, xp = xp + ? WHERE user_id = ?",
                              (xp, message.author.name))
@@ -77,9 +85,13 @@ class LVLSystem(commands.Cog):
 
         if old_level == new_level:
             return
-        await message.channel.send(embed=embed)
-        await db.execute("UPDATE users SET cookies = cookies + 30 WHERE user_id = ?", (message.author.name,))
-        await db.commit()
+        async with aiosqlite.connect("level.db") as db:
+            lvlcookies = new_level * 5
+            async with db.cursor() as cursor:
+                await cursor.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?",
+                                     (lvlcookies, message.author.name))
+                await db.commit()
+            await message.channel.send(embed=embed)
 
     @slash_command()
     async def rank(self, ctx, user: Option(discord.Member, description="Von welchen User möchtest du den Rank wissen?",
@@ -100,13 +112,13 @@ class LVLSystem(commands.Cog):
                     as cursor:
                 call_sec = await cursor.fetchone()
 
-           # async with db.execute("SELECT mathe_xp FROM users WHERE user_id = ?", (user.name,)) as cursor:
-            #    mathe_xp = await cursor.fetchone()
+        # async with db.execute("SELECT mathe_xp FROM users WHERE user_id = ?", (user.name,)) as cursor:
+        #    mathe_xp = await cursor.fetchone()
 
         xp = await self.get_xp(user.name)
         lvl = self.get_level(xp)
 
-       # mathe_lvl = self.get_level(mathe_xp)
+        # mathe_lvl = self.get_level(mathe_xp)
 
         embed = discord.Embed(title=f"{user.name} Rank", color=discord.Color.random(),
                               description=f"""
@@ -114,9 +126,9 @@ class LVLSystem(commands.Cog):
 {user.name} war **{call_sec[0]}** Sekunden in Talks.
 {user.name} hat **{cookies[0]}** Cookies.
 {user.name} hat **{msg_count[0]}** Narichten geschrieben.""")
-#        embed.add_field(name="Mathe", value=f"""
-#Mathe XP: {mathe_xp}
-#Mathe LVL: {mathe_lvl}""")
+        #        embed.add_field(name="Mathe", value=f"""
+        # Mathe XP: {mathe_xp}
+        # Mathe LVL: {mathe_lvl}""")
         embed.set_thumbnail(url=user.display_avatar.url)
         embed.set_footer(text=f"Angefordert von {ctx.author}", icon_url=ctx.author.display_avatar.url)
         await ctx.respond(embed=embed)
@@ -168,17 +180,17 @@ class LVLSystem(commands.Cog):
                 await ctx.respond(embed=embed)
                 return
 
-           # if leaderboard == "Mathe":
+            # if leaderboard == "Mathe":
             #    async with db.execute("SELECT user_id, mathe_xp FROM users WHERE xp > 0 ORDER BY xp DESC LIMIT ?",
-             #                         (member,)) as cursor:
-              #      async for user_id, mathe_xp in cursor:
-               #         desc += f"{counter}. **{user_id}** - **{mathe_xp}** {leaderboard}\n"
-                #        counter += 1
+            #                         (member,)) as cursor:
+            #      async for user_id, mathe_xp in cursor:
+            #         desc += f"{counter}. **{user_id}** - **{mathe_xp}** {leaderboard}\n"
+            #        counter += 1
 
-                embed = discord.Embed(title=f"**{leaderboard} Rangliste**", description=desc,
-                                      color=discord.Color.blue())
-                await ctx.respond(embed=embed)
-                return
+            # embed = discord.Embed(title=f"**{leaderboard} Rangliste**", description=desc,
+            #                       color=discord.Color.blue())
+            # await ctx.respond(embed=embed)
+            # return
 
             if leaderboard == "Talk":
                 async with db.execute(
@@ -193,11 +205,17 @@ class LVLSystem(commands.Cog):
                 await ctx.respond(embed=embed)
 
     @slash_command(description="Gebe einen anderen User Kekse!")
-    async def give(self, ctx, user: discord.Member, betrag: Option(int, description="Wie viel möchtest du geben?")):
+    async def gift(self, ctx, user: discord.Member, betrag: Option(int, description="Wie viel möchtest du geben?")):
         async with aiosqlite.connect("level.db") as db:
             async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (ctx.author.name,)) as cursor:
                 result = await cursor.fetchone()
                 print(f"{ctx.author} hat /give gemacht")
+                if user == ctx.author:
+                    await ctx.respond("Du kannst dir nicht selber Kekse geben!", ephemeral=True)
+                    return
+                if user == user.bot:
+                    await ctx.respond("Das ist zwar nett gemeint aber die Bots verdienen genung.", ephemeral=True)
+                    return
                 if result[0] < betrag:
                     await ctx.respond(f"Du hast nicht genug Cookies, du hast nur **{result[0]}** Cookies.",
                                       ephemeral=True)
@@ -205,10 +223,10 @@ class LVLSystem(commands.Cog):
             await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (betrag, user.name))
             await db.execute("UPDATE users SET cookies = cookies - ? WHERE user_id = ?", (betrag, ctx.author.name))
             await db.commit()
-            await user.send(f"Du hast von {ctx.author.name} **{betrag}** Cookies bekommen. Du hast jetzt **{result}** "
-                            f"Cookies.")
             await ctx.respond(f"Du hast erfolgreich **{user.name}** **{betrag}** Cookies gegeben.", ephemeral=True)
-
+            if muterolle not in ctx.author.roles:
+                await user.send(f"Du hast von {ctx.author.name} **{betrag}** Cookies bekommen. Du hast jetzt "
+                                f"**{result[0]}** Cookies.")
 
 def setup(bot):
     bot.add_cog(LVLSystem(bot))

@@ -34,7 +34,6 @@ TEAM_ROLE = 1022176701448458270 # Die Rolle, welches die Tickets sehen soll!
 TICKET_CHANNEL = 1045440415337295982 # Der Channel, wo Tickets geöffnet werden sollen!
 CATEGORY_ID = 1045440313881280593 # Die Kategorie, wo die Tickets erstellt werden sollen!
 
-
 @bot.event
 async def on_ready():
     de = pytz.timezone('Europe/Berlin')
@@ -74,6 +73,16 @@ async def on_raw_reaction_add(payload):
                 await asyncio.sleep(5)
                 await msg.delete()
 
+uptime_counter = time.time()
+
+@bot.slash_command(description="Zeigt wie lange der Bot schon online ist!")
+async def uptime(ctx: discord.ApplicationContext):
+    aktuell_zeit = time.time()
+    uptime_sek = aktuell_zeit - uptime_counter
+
+    uptime_timestamp = round(aktuell_zeit - uptime_sek)
+
+    await ctx.respond(f':green_circle: Der Bot ist seit <t:{uptime_timestamp}:R> online!')
 
 @bot.event
 async def on_message(msg):
@@ -243,11 +252,11 @@ async def miesmuschel(ctx, *, question):
 async def daily(ctx):
     async with aiosqlite.connect("level.db") as db:
         print(f"{ctx.author} hat /daily gemacht")
-        cookies = random.randint(3, 6)
-        cookiesmember = random.randint(3, 8)
-        cookiesmemberplus = random.randint(3, 9)
-        cookiesmembermod = random.randint(3, 10)
-        cookiesmemberulti = random.randint(3, 11)
+        cookies = random.randint(3, 10)
+        cookiesmember = random.randint(3, 12)
+        cookiesmemberplus = random.randint(3, 16)
+        cookiesmembermod = random.randint(3, 20)
+        cookiesmemberulti = random.randint(3, 24)
         guild = bot.get_guild(724602228505313311)
         member = guild.get_role(986320867518722068)
         memberplus = guild.get_role(986321038667309107)
@@ -1233,12 +1242,13 @@ async def vanity_task():
 if __name__ == "__main__":
     bot.load_extension("cogs.lvlsystem")
     # bot.load_extension("cogs.knilzbot")
-    # bot.load_extension("cogs.admin")
+    # bot.load_extension("cogs.bugreport")
     # bot.load_extension("cogs.mmosystem")
     # bot.load_extension("cogs.afk")
-    bot.load_extension("cogs.mathe")
+    # bot.load_extension("cogs.mathe")
     # bot.load_extension("cogs.ticketsystem")
     bot.load_extension("cogs.settings")
+    bot.load_extension("cogs.economy")
     bot.load_extension("cogs.funcommands")
     load_dotenv()
     bot.run(os.getenv("TESTTOKEN"))

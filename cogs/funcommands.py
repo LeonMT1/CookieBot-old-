@@ -1,6 +1,7 @@
 import asyncio
 import random
 import aiosqlite
+import time
 
 import discord
 import requests
@@ -15,13 +16,24 @@ class FunCommands(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await asyncio.sleep(0.8)
+        await asyncio.sleep(0.9)
         print("""
             funcommands.py   ✅
             ------------------------""")
 
+    @slash_command(description="Zeigt wie lange der Bot schon online ist!")
+    async def uptime(self, ctx: discord.ApplicationContext):
+        print(f"{ctx.author} hat /uptime gemacht")
+        uptime_counter = time.time()
+        aktuell_zeit = time.time()
+        uptime_sek = aktuell_zeit - uptime_counter
+
+        uptime_timestamp = round(aktuell_zeit - uptime_sek)
+
+        await ctx.respond(f':green_circle: Der Bot ist seit <t:{uptime_timestamp}:R> online!')
+
     @slash_command(description="Schlage jemanden")
-    @commands.cooldown(1, 3600, commands.BucketType.user)
+    @commands.cooldown(1, 60, commands.BucketType.user)
     async def slap(self, ctx, member: discord.Member):
         guild: discord.Guild = self.bot.get_guild(724602228505313311)
         muterolle: discord.Role = guild.get_role(1043532505887809577)
@@ -56,7 +68,7 @@ class FunCommands(commands.Cog):
                                    description=f"RÄCHE DICH JETZT INDEM DU auf den **DER COOKIE CLAN** DC gehst und in "
                                                f"https://discord.com/channels/724602228505313311/963740046995890176 "
                                                f"/slap {ctx.author} machst 😉")
-        if muterolle in ctx.author.roles:
+        if muterolle not in ctx.author.roles:
             await member.send(embed=geschlagen)
 
     @slash_command(description="Löse ein zufälliges Event aus. uiii")
@@ -113,7 +125,7 @@ class FunCommands(commands.Cog):
                             f"Du hast deine Cookies gezählt wie jeden morgen weil am Tag vorher {random.choice(user)} "
                             f"da war. Dann hast du festgestellt das sie/er/es dir **{cookies}** hinterhältig geklaut "
                             f"hat!", f"Du bist zu McDonalds gegangen und hast dir einen McFlurry geholt. Als du "
-                            f"zurückkamst war dein McFlurry weg und du hast **{cookies}** Cookies verloren.",
+                                     f"zurückkamst war dein McFlurry weg und du hast **{cookies}** Cookies verloren.",
                             f"{random.choice(user)} hat dir **{cookies}** Cookies geklaut. Allerdings ist er "
                             f"gestollpert und alle sind zerbrochen",
                             f"Etwas hat dir **{cookies}** Cookies geklaut. Du hast es nicht gesehen aber du hast "
@@ -204,7 +216,7 @@ class FunCommands(commands.Cog):
                          "hardcore", "midnight", "bigdaddy", "victoria", "cocacola", "marlboro", "asdfasdf",
                          "jaordan32",
                          "jonathan"]
-            cookies = random.randint(0, 3)
+            cookies = random.randint(0, 10)
             fa = ["an", "aus"]
             anbieter = ["PornHub", "Microsoft", "Riotgames", "Ubisoft", "Discord", "Rewe", "Lidl", "Netto", "Steam",
                         "Epic Games", "LeonMT1"]
@@ -244,7 +256,7 @@ Häufigeste Überweisung an: {random.choice(anbieter)}
 Kontostand: {result[0]} Cookies""", color=discord.Color.green())
             embed.set_thumbnail(url=ctx.author.display_avatar.url)
             await message.edit(embed=embed)
-            if muterolle in member.roles:
+            if muterolle not in member.roles:
                 await member.send(f"""Du wurdest von {ctx.author} gehackt, er hat dir {cookies} Cookies geklaut xD.
 Du kannst auch alle 12h jemand anderen Hacken und davon Cookies bekommen!""")
 
