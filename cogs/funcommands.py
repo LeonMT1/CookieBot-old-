@@ -22,7 +22,7 @@ class FunCommands(commands.Cog):
             ------------------------""")
 
     @slash_command(description="Zeigt wie lange der Bot schon online ist!")
-    async def uptime(self, ctx: discord.ApplicationContext):
+    async def ontime(self, ctx: discord.ApplicationContext):
         print(f"{ctx.author} hat /uptime gemacht")
         uptime_counter = time.time()
         aktuell_zeit = time.time()

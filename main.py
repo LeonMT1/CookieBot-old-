@@ -73,16 +73,6 @@ async def on_raw_reaction_add(payload):
                 await asyncio.sleep(5)
                 await msg.delete()
 
-uptime_counter = time.time()
-
-@bot.slash_command(description="Zeigt wie lange der Bot schon online ist!")
-async def uptime(ctx: discord.ApplicationContext):
-    aktuell_zeit = time.time()
-    uptime_sek = aktuell_zeit - uptime_counter
-
-    uptime_timestamp = round(aktuell_zeit - uptime_sek)
-
-    await ctx.respond(f':green_circle: Der Bot ist seit <t:{uptime_timestamp}:R> online!')
 
 @bot.event
 async def on_message(msg):

@@ -68,12 +68,15 @@ class Economy(commands.Cog):
             await db.commit()
 
     @slash_command(description="Kaufe dir Sachen!")
-    async def teigcookies(self, ctx):
+    async def shop(self, ctx):
         async with aiosqlite.connect("level.db") as db:
-            await db.execute("SELECT cookies FROM users WHERE user_id = ?", (ctx.author.name,))
-            cookies = await db.fetchone()
-            print(cookies)
-            await ctx.send(f"Du hast {cookies} Cookies")
+            async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (ctx.author.name,)) as cursor:
+                cookies = await cursor.fetchone()
+        embed = discord.Embed(title="Shop", description="Hier kannst du dir Sachen kaufen!", color=0x00ff00)
+        embed.add_field(name="Ofen", value="Kaufe dir einen Ofen um mehr Cookies zu bekommen! \n Preis: 100 Cookies \n Profit: 1 Cookie pro Tag")
+        embed.set_footer(text=f"Du hast {cookies} Cookies")
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Economy(bot))
