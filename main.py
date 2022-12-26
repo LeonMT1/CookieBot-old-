@@ -3,7 +3,7 @@ import json
 import os
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 import aiosqlite
 import discord
@@ -43,7 +43,6 @@ async def on_ready():
         description='Dieser Bot ist jetzt wieder online!',
         color=discord.Color.green(),
         timestamp=datetime.now().astimezone(tz=de))
-    vanity_task.start()
     await asyncio.sleep(1)
     await bot.get_channel(825340653378338837).send(embed=online)
 

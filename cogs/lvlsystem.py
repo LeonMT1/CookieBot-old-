@@ -42,6 +42,10 @@ class LVLSystem(commands.Cog):
                 call_sec INTEGER DEFAULT 0,
                 mathe_xp INTEGER DEFAULT 0,
                 mathe_geschaft INTEGER DEFAULT 0)""")
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS eat (
+                useer_id TEXT PRIMARY KEY,
+                cookieat INTEGER DEFAULT 0)""")
             print("""
             ---Datein------Status---
             main.py          ✅
@@ -81,6 +85,7 @@ class LVLSystem(commands.Cog):
                 await message.channel.send(embed=glueckembed)
                 await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (xp, message.author.name))
                 await db.commit()
+            await db.execute("INSERT OR IGNORE INTO cookieat (user_id) VALUES (?)", (message.author.name,))
             await db.execute("INSERT OR IGNORE INTO users (user_id) VALUES (?)", (message.author.name,))
             await db.execute("UPDATE users SET msg_count = msg_count + 1, xp = xp + ? WHERE user_id = ?",
                              (xp, message.author.name))
@@ -89,15 +94,15 @@ class LVLSystem(commands.Cog):
         new_xp = await self.get_xp(message.author.name)
         old_level = self.get_level(new_xp - xp)
         new_level = self.get_level(new_xp)
+        lvlcookies = new_level * 5
 
         embed = discord.Embed(title="Rangaufstieg", color=discord.Color.random(),
                               description=f"Herzlichen Glückwunsch {message.author.mention} du hast Level **{new_level}"
-                                          f"** ereicht! Du hast **30** Cookies als Geschenk bekommen!")
+                                          f"** ereicht! Du hast **{lvlcookies}** Cookies als Geschenk bekommen!")
 
         if old_level == new_level:
             return
         async with aiosqlite.connect("level.db") as db:
-            lvlcookies = new_level * 5
             async with db.cursor() as cursor:
                 await cursor.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?",
                                      (lvlcookies, message.author.name))
@@ -255,6 +260,9 @@ class LVLSystem(commands.Cog):
             if result[0] < 1:
                 await ctx.respond("Du hast keine Cookies.", ephemeral=True)
                 return
+            if cookies > 30:
+                await ctx.respond("Du bist satt du kannst nicht noch mehr essen.")
+                return
             guild: discord.Guild = self.bot.get_guild(1016436920965939280)
             rolle: discord.Role = guild.get_role(1055224306612842497)
             xpboost = cookies * 5
@@ -269,7 +277,7 @@ class LVLSystem(commands.Cog):
                 await ctx.author.add_roles(rolle)
                 await asyncio.sleep(xpboost * 60)
                 await ctx.author.remove_roles(rolle)
-                await ctx.author.send(f"Dein XP Boost ist vorbei.")
+                await ctx.author.send("Dein XP Boost ist vorbei.")
                 return
             embed = discord.Embed(title="Du hast Kekse gegessen!",
                                   description=f"Du hast **{cookies}** Kekse gegessen und einen x1.5 XP Boost für "
@@ -279,6 +287,11 @@ class LVLSystem(commands.Cog):
             await asyncio.sleep(xpboost * 60)
             await ctx.author.remove_roles(rolle)
             await ctx.author.send(f"Dein XP Boost ist vorbei.")
+
+    @tasks.loop(hour=1)
+    async def bauch(self):
+        async with aiosqlite.connect("level.db") as db:
+            await db.execute("UPDATE cookieat SET cookies = 0")
 
 def setup(bot):
     bot.add_cog(LVLSystem(bot))
