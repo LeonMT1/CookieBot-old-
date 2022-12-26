@@ -288,10 +288,5 @@ class LVLSystem(commands.Cog):
             await ctx.author.remove_roles(rolle)
             await ctx.author.send(f"Dein XP Boost ist vorbei.")
 
-    @tasks.loop(hour=1)
-    async def bauch(self):
-        async with aiosqlite.connect("level.db") as db:
-            await db.execute("UPDATE cookieat SET cookies = 0")
-
 def setup(bot):
     bot.add_cog(LVLSystem(bot))
