@@ -1238,6 +1238,7 @@ if __name__ == "__main__":
     # bot.load_extension("cogs.ticketsystem")
     bot.load_extension("cogs.settings")
     bot.load_extension("cogs.economy")
+    bot.load_extension("cogs.mcstats")
     bot.load_extension("cogs.funcommands")
     load_dotenv()
     bot.run(os.getenv("TESTTOKEN"))
