@@ -3,7 +3,8 @@ import json
 import os
 import random
 import time
-from datetime import datetime, timezone
+import openai
+from datetime import datetime
 
 import aiosqlite
 import discord
@@ -19,9 +20,13 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-activity = discord.Activity(type=discord.ActivityType.playing, name="mit Keksen")
+aktivität = discord.Activity(status=discord.Status.invisible)
 
-bot = discord.Bot(intents=intents, debug_guilds=None, activity=activity)
+activity = discord.Activity(type=discord.ActivityType.playing, name="mit Keksen"
+                            )
+
+bot = discord.Bot(intents=intents, debug_guilds=None, activity=aktivität)
+openai.api_key = "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"
 
 # © 2022 - Martin B. ツ#2128
 GUILD = 1016436920965939280
@@ -29,10 +34,11 @@ STATUS_ROLE = 1033889262246035456
 STATUS_TEXT = "https://discord.gg/yaVeqUPhVE"
 LOG_CHANNEL = 1016436921750270034
 
-GUILD_ID = 1016436920965939280 # Server ID eintragen!
-TEAM_ROLE = 1022176701448458270 # Die Rolle, welches die Tickets sehen soll!
-TICKET_CHANNEL = 1045440415337295982 # Der Channel, wo Tickets geöffnet werden sollen!
-CATEGORY_ID = 1045440313881280593 # Die Kategorie, wo die Tickets erstellt werden sollen!
+GUILD_ID = 1016436920965939280  # Server ID eintragen!
+TEAM_ROLE = 1022176701448458270  # Die Rolle, welches die Tickets sehen soll!
+TICKET_CHANNEL = 1045440415337295982  # Der Channel, wo Tickets geöffnet werden sollen!
+CATEGORY_ID = 1045440313881280593  # Die Kategorie, wo die Tickets erstellt werden sollen!
+
 
 @bot.event
 async def on_ready():
@@ -43,8 +49,11 @@ async def on_ready():
         description='Dieser Bot ist jetzt wieder online!',
         color=discord.Color.green(),
         timestamp=datetime.now().astimezone(tz=de))
+    vanity_task.start()
     await asyncio.sleep(1)
     await bot.get_channel(825340653378338837).send(embed=online)
+    for guild in bot.guilds:
+        print(guild.name)
 
 
 async def has_vanity(member: discord.Member):
@@ -76,6 +85,7 @@ async def on_raw_reaction_add(payload):
 @bot.event
 async def on_message(msg):
     print(msg.channel)
+    print(msg.content)
 
 
 player1 = ""
@@ -251,46 +261,57 @@ async def daily(ctx):
         memberplus = guild.get_role(986321038667309107)
         membermod = guild.get_role(986321161770119169)
         memberulti = guild.get_role(986321248210526208)
+        embed = discord.Embed(title="Hier ist deine Tägliche Belohnung!",
+                              description=f"Du hast deine Tägliche Belohnung von **{cookies}** Cookies abgeholt",
+                              color=discord.Color.green())
+        embedmember = discord.Embed(title="Hier ist deine Tägliche Belohnung!",
+                                    description=f"Du hast deine Tägliche Belohnung von **{cookies}** Cookies abgeholt",
+                                    color=discord.Color.green())
+        embedmemberplus = discord.Embed(title="Hier ist deine Tägliche Belohnung!",
+                                        description=f"Du hast deine Tägliche Belohnung von **{cookies}** Cookies abgeholt",
+                                        color=discord.Color.green())
+        embedmembermod = discord.Embed(title="Hier ist deine Tägliche Belohnung!",
+                                       description=f"Du hast deine Tägliche Belohnung von **{cookies}** Cookies abgeholt",
+                                       color=discord.Color.green())
+        embedmemberulti = discord.Embed(title="Hier ist deine Tägliche Belohnung!",
+                                        description=f"Du hast deine Tägliche Belohnung von **{cookies}** Cookies abgeholt",
+                                        color=discord.Color.green())
+        embedmember.set_footer(text="10% mehr durch Cookie Clan Member")
+        embedmemberplus.set_footer(text="20% mehr durch Cookie Clan Member+")
+        embedmembermod.set_footer(text="30% mehr durch Cookie Clan Mod")
+        embedmemberulti.set_footer(text="40% mehr durch Cookie Clan Member Ultimate")
 
         if member in ctx.author.roles:
             await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (cookiesmember,
                                                                                           ctx.author.name))
             await db.commit()
-            await ctx.respond(
-                f"Du hast deine Tägliche Belohnung eingesammelt und **{cookiesmember}** Cookies bekommen! "
-                f"(10% mehr durch Cookie Clan Member)")
+            await ctx.respond(embed=embedmember)
             return
 
         if memberplus in ctx.author.roles:
             await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (cookiesmemberplus,
                                                                                           ctx.author.name))
             await db.commit()
-            await ctx.respond(
-                f"Du hast deine Tägliche Belohnung eingesammelt und **{cookiesmemberplus}** Cookies bekommen! "
-                f"(20% mehr durch Cookie Clan Member+)")
+            await ctx.respond(embed=embedmemberplus)
             return
 
         if membermod in ctx.author.roles:
             await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (cookiesmembermod,
                                                                                           ctx.author.name))
             await db.commit()
-            await ctx.respond(
-                f"Du hast deine Tägliche Belohnung eingesammelt und **{cookiesmembermod}** Cookies bekommen! "
-                f"(30% mehr durch Cookie Clan Mod)")
+            await ctx.respond(embed=embedmembermod)
             return
 
         if memberulti in ctx.author.roles:
             await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (cookiesmemberulti,
                                                                                           ctx.author.name))
             await db.commit()
-            await ctx.respond(
-                f"Du hast deine Tägliche Belohnung eingesammelt und **{cookiesmemberulti}** Cookies bekommen! "
-                f"(40% mehr durch Ultimativer Cookie Member)")
+            await ctx.respond(embed=embedmemberulti)
             return
 
         await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (cookies, ctx.author.name))
         await db.commit()
-        await ctx.respond(f"Du hast deine Tägliche Belohnung eingesammelt und **{cookies}** Cookies bekommen!")
+        await ctx.respond(embed=embed)
 
 
 @bot.slash_command(description="Würfel! falls du mal keinen Würfel zur hand haben solltest.", name="würfeln")
@@ -602,7 +623,7 @@ async def on_message_delete(message):
 
 
 @bot.event
-async def on_message_edit(before, after):
+async def on_message_edit(before, after, message: discord.Message):
     de = pytz.timezone('Europe/Berlin')
     em = discord.Embed(
         title='Messege Edit',
@@ -612,6 +633,8 @@ async def on_message_edit(before, after):
         color=0xf1c40f,
         timestamp=datetime.now().astimezone(tz=de)
     )
+    if message.author.bot:
+        return
     await bot.get_channel(825340653378338837).send(embed=em)
 
 
@@ -855,7 +878,8 @@ async def zinsen(ctx):
                 zinsen = result[0] * 0.10
             await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (zinsen, ctx.author.name))
             await db.commit()
-            embederfolgreich = discord.Embed(title=f"10% Zinsen abgeholt!", description=f"Du hast deine Zinsen abgeholt!",
+            embederfolgreich = discord.Embed(title=f"10% Zinsen abgeholt!",
+                                             description=f"Du hast deine Zinsen abgeholt!",
                                              color=discord.Color.green())
             embederfolgreich.add_field(name="Rechnung", value=f"""
 Ehemaliger Konto stand: **{result[0]}**
@@ -873,7 +897,7 @@ Neuer Konto stand:     **{result[0] + zinsen}**""")
 
 
 @bot.slash_command()
-async def time(ctx, land: Option(str, description="Wähle ein Land aus", default=None)):
+async def world_time(ctx, land: Option(str, description="Wähle ein Land aus", default=None)):
     print(f"{ctx.author.name} hat /time gemacht")
     if land is None:
         embed = discord.Embed(title="Diese Länder gibt es bei diesen Command!",
@@ -1001,19 +1025,20 @@ async def youtube(ctx):
 
 @bot.event
 async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    call_length = 0  # default value
     async with aiosqlite.connect("level.db") as db:
         de = pytz.timezone('Europe/Berlin')
+        embed2 = discord.Embed(
+            title='Zeit im Talk',
+            description=f'**Zeit im Talk**: {member.name} war {call_length}S im Talk',
+            color=discord.Color.blurple(),
+            timestamp=datetime.now().astimezone(tz=de)
+        )
         with open('vc.json', 'r') as f:
             data = json.load(f)
         if not member.voice:
             try:
                 call_length = round(time.time()) - data[str(member.id)]
-                embed = discord.Embed(
-                    title='Zeit im Talk',
-                    description=f'**Zeit im Talk**: {member.name} war {call_length}S im Talk',
-                    color=discord.Color.blurple(),
-                    timestamp=datetime.now().astimezone(tz=de)
-                )
                 await db.execute("UPDATE users SET call_sec = call_sec + ? WHERE user_id = ?",
                                  (call_length, member.name))
                 await db.commit()
@@ -1025,7 +1050,8 @@ async def on_voice_state_update(member: discord.Member, before: discord.VoiceSta
             data[str(member.id)] = round(time.time())
         with open('vc.json', 'w') as f:
             data = json.dump(data, f)
-            await bot.get_channel(825340653378338837).send(embed=embed)
+            embed2.description = f'**Zeit im Talk**: {member.name} war {call_length}S im Talk'  # update the description field
+            await bot.get_channel(825340653378338837).send(embed=embed2)
 
 
 @bot.slash_command(description='Narichten als anderer User schicken')
@@ -1161,39 +1187,6 @@ async def on_raw_reaction_remove(payload):
                 await _channel.send('Ich habe keine Rechte um diese Rolle anderen zu geben oder sie wurde gelöscht!')
 
 
-# @bot.slash_command(description="Reporte einen Bug")
-# async def reportbug(ctx):
-
-# class bugModal(discord.ui.Modal):
-# def __init__(self, *args, **kwargs):
-# super().__init__(
-# discord.ui.InputText(
-#     label="Bug Titel",
-#      placeholder="zB: /event fehler!"),
-#   discord.ui.InputText(
-#        label="Bug Beschreibung",
-#         placeholder="zB: Wenn ich /event mache steht da ein Fehler!",
-#          style=discord.InputTextStyle.long),
-#       *args,
-#        **kwargs)
-
-# async def callback(self, interaction: discord.Interaction):
-# de = pytz.timezone('Europe/Berlin')
-# embed = discord.Embed(
-#    title=f"Bug Report von **LÜCKE** | Titel: **{self.children[0].value}**",
-#     description=self.children[1].value,
-#      color=discord.Color.red(),
-#       timestamp=datetime.now().astimezone(tz=de))
-#    message = await interaction.response.send_message(embed=embed)
-#     messageid = message.id
-#      print(messageid)
-#       await message.add_reaction("✅")
-#        await message.add_reaction("❌")
-
-# modal = bugModal(title="Reporte einen Bug!")
-# await ctx.send_modal(modal)
-
-
 @tasks.loop(seconds=1)
 async def vanity_task():
     await bot.wait_until_ready()
@@ -1228,17 +1221,69 @@ async def vanity_task():
                     await log.send(embed=embed)
 
 
+@bot.event
+async def on_message(message):
+    # bug channel id ersetzen
+    if message.author.bot:
+        return
+    if message.channel.id == 1071805141591793806:
+        # mod chat channel ersetzten
+        channel = bot.get_channel(1071805178312917105)
+        embed = discord.Embed(title="**Neuer Bug:**", description=message.content)
+        await channel.send(embed=embed, view=BugView(message.author))
+        await message.delete()
+
+
+class BugView(discord.ui.View):
+    def __init__(self, user):
+        self.user = user
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="✅", style=discord.ButtonStyle.green)
+    async def button_callback1(self, button, interaction):
+        async with aiosqlite.connect("level.db") as db:
+            cookie = random.randint(10, 50)
+            embeduser = discord.Embed(title="Bestätigt",
+                                      description=f"Du hast durch das reporten eines Bugs/Reports **{cookie}** Cookies erhalten.",
+                                      color=discord.Color.green())
+            await interaction.response.send_message(f"Bug wurde bestätigt, der Member bekommt {cookie} Cookies")
+            # Hier soll der User Cookies bekommen
+            member = self.user
+            await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (cookie, self.user.name))
+            # role id ersetzen
+            role = discord.utils.get(member.guild.roles, id=1043532505887809577)
+            if role not in member.roles:
+                await member.send(embed=embeduser)
+            else:
+                return
+
+    @discord.ui.button(label="❌", style=discord.ButtonStyle.green)
+    async def button_callback2(self, button, interaction):
+        embeduser = discord.Embed(title="Abgelehnt",
+                                  description="Dein Bug/Report wurde nicht von unseren Mods angenommen.",
+                                  color=discord.Color.red())
+        await interaction.response.send_message("Bug/Report wurde nicht bestätigt, der Member bekommt keine Cookies.")
+        member = self.user
+        role = discord.utils.get(member.guild.roles, id=1043532505887809577)
+        if role not in member.roles:
+            await member.send(embed=embeduser)
+        else:
+            return
+
+
 if __name__ == "__main__":
     bot.load_extension("cogs.lvlsystem")
     # bot.load_extension("cogs.knilzbot")
-    # bot.load_extension("cogs.bugreport")
+    bot.load_extension("cogs.bugreport")
     # bot.load_extension("cogs.mmosystem")
     # bot.load_extension("cogs.afk")
     # bot.load_extension("cogs.mathe")
     # bot.load_extension("cogs.ticketsystem")
     bot.load_extension("cogs.settings")
-    bot.load_extension("cogs.economy")
+    # bot.load_extension("cogs.economy")
     bot.load_extension("cogs.mcstats")
+    bot.load_extension("cogs.counting")
+    bot.load_extension("cogs.radio")
     bot.load_extension("cogs.funcommands")
     load_dotenv()
     bot.run(os.getenv("TESTTOKEN"))

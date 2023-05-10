@@ -5,7 +5,7 @@ import aiosqlite
 import discord
 from discord import Option
 from discord.commands import slash_command
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 
 class LVLSystem(commands.Cog):
@@ -42,17 +42,11 @@ class LVLSystem(commands.Cog):
                 call_sec INTEGER DEFAULT 0,
                 mathe_xp INTEGER DEFAULT 0,
                 mathe_geschaft INTEGER DEFAULT 0)""")
-            await db.execute("""
-                CREATE TABLE IF NOT EXISTS eat (
-                user_id TEXT PRIMARY KEY,
-                cookieat INTEGER DEFAULT 0)""")
             print("""
             ---Datein------Status---
             main.py          ✅
             lvlsystem.py     ✅""")
-            self.bot.cookieeat.start()
-            
-            
+
     async def check_user(self, user_id):
         async with aiosqlite.connect(self.DB) as db:
             await db.execute("INSERT OR IGNORE INTO users (user_id) VALUES (?)", (user_id,))
@@ -65,25 +59,26 @@ class LVLSystem(commands.Cog):
                 result = await cursor.fetchone()
             return result[0]
 
-    @tasks.loop(seconds=1)
-    async def cookieeat(self):
-        async with aiosqlite.connect("level.db") as db:
-            await db.execute("UPDATE eat SET cookieat = 20")
-            await db.commit()
-
     @commands.Cog.listener()
     async def on_message(self, message):
         async with aiosqlite.connect("level.db") as db:
+            channels = [992840704734797834, 992840882397130832, 992840853687111721, 992840783621271582]
             if message.author.bot:
                 return
             if not message.guild:
                 return
-            guild: discord.Guild = self.bot.get_guild(1016436920965939280)
-            rolle: discord.Role = guild.get_role(1055224306612842497)
+            guild: discord.Guild = self.bot.get_guild(724602228505313311)
+            rolle: discord.Role = guild.get_role(1055216204878446754)
             xp = random.randint(15, 25)
             if rolle in message.author.roles:
                 xp = xp * 1.5
+            if message.channel.id in channels:
+                xp = xp / 2
             rndm = random.randint(1, 100)
+            await db.execute("INSERT OR IGNORE INTO users (user_id) VALUES (?)", (message.author.name,))
+            await db.execute("UPDATE users SET msg_count = msg_count + 1, xp = xp + ? WHERE user_id = ?",
+                             (xp, message.author.name))
+            await db.commit()
             print(xp)
             glueckembed = discord.Embed(title="Kleine Belhonung ;)",
                                        description=f"{message.author.name} hat {xp} Cookies bekommen da er aktiv am "
@@ -93,11 +88,6 @@ class LVLSystem(commands.Cog):
                 await message.channel.send(embed=glueckembed)
                 await db.execute("UPDATE users SET cookies = cookies + ? WHERE user_id = ?", (xp, message.author.name))
                 await db.commit()
-            await db.execute("INSERT OR IGNORE INTO eat (user_id) VALUES (?)", (message.author.name,))
-            await db.execute("INSERT OR IGNORE INTO users (user_id) VALUES (?)", (message.author.name,))
-            await db.execute("UPDATE users SET msg_count = msg_count + 1, xp = xp + ? WHERE user_id = ?",
-                             (xp, message.author.name))
-            await db.commit()
 
         new_xp = await self.get_xp(message.author.name)
         old_level = self.get_level(new_xp - xp)
@@ -264,42 +254,34 @@ class LVLSystem(commands.Cog):
     async def eat(self, ctx, cookies: Option(int, description="Wie viele Kekse möchtest du essen?")):
         async with aiosqlite.connect("level.db") as db:
             async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (ctx.author.name,)) as cursor:
-                async with db.execute("SELECT cookieat FROM eat WHERE user_id = ?", (ctx.author.name)) as cursor2:
-                    result = await cursor.fetchone()
-                    result2 = await cursor2.fetchone()
-                if cookies > result[0]:
-                    await ctx.respond(f"Du hast nicht so viele Cookies, du hast nur **{result[0]}** Cookies.", ephemeral=True)
-                    return
-                if cookies > 11:
-                    await ctx.respond("Du kannst nicht so viele Cookies aufeinmal essen.")
-                    return
-                if result2[0] == 0:
-                    await ctx.respond("Du hast dich übergessen warte bis du wieder isst.")
-                    return
-                guild: discord.Guild = self.bot.get_guild(1016436920965939280)
-                rolle: discord.Role = guild.get_role(1055224306612842497)
-                xpboost = cookies * 5
-                await db.execute("UPDATE users SET cookies = cookies - ? WHERE user_id = ?", (cookies, ctx.author.name))
-                await db.commit()
-                if cookies == 1:
-                    embed = discord.Embed(title="Du hast einen Keks gegessen!",
-                                        description=f"Du hast **{cookies}** Keks gegessen und einen x1.5 XP Boost für "
-                                                    f"**{xpboost}** Minuten bekommen!",
-                                        color=discord.Color.green())
-                    await ctx.respond(embed=embed)
-                    await ctx.author.add_roles(rolle)
-                    await asyncio.sleep(xpboost * 60)
-                    await ctx.author.remove_roles(rolle)
-                    await ctx.author.send("Dein XP Boost ist vorbei.")
-                    return
-                embed = discord.Embed(title="Du hast Kekse gegessen!",
-                                    description=f"Du hast **{cookies}** Kekse gegessen und einen x1.5 XP Boost für "
-                                                f"**{xpboost}** Minuten bekommen!", color=discord.Color.green())
+                result = await cursor.fetchone()
+            if result[0] < 1:
+                await ctx.respond("Du hast keine Cookies.", ephemeral=True)
+                return
+            guild: discord.Guild = self.bot.get_guild(724602228505313311)
+            rolle: discord.Role = guild.get_role(1055216204878446754)
+            xpboost = cookies * 5
+            await db.execute("UPDATE users SET cookies = cookies - ? WHERE user_id = ?", (cookies, ctx.author.name))
+            await db.commit()
+            if cookies == 1:
+                embed = discord.Embed(title="Du hast einen Keks gegessen!",
+                                      description=f"Du hast **{cookies}** Keks gegessen und einen x1.5 XP Boost für "
+                                                  f"**{xpboost}** Minuten bekommen!",
+                                      color=discord.Color.green())
                 await ctx.respond(embed=embed)
                 await ctx.author.add_roles(rolle)
                 await asyncio.sleep(xpboost * 60)
                 await ctx.author.remove_roles(rolle)
-                await ctx.author.send("Dein XP Boost ist vorbei.")
+                await ctx.author.send(f"Dein XP Boost ist vorbei.")
+                return
+            embed = discord.Embed(title="Du hast Kekse gegessen!",
+                                  description=f"Du hast **{cookies}** Kekse gegessen und einen x1.5 XP Boost für "
+                                              f"**{xpboost}** Minuten bekommen!", color=discord.Color.green())
+            await ctx.respond(embed=embed)
+            await ctx.author.add_roles(rolle)
+            await asyncio.sleep(xpboost * 60)
+            await ctx.author.remove_roles(rolle)
+            await ctx.author.send(f"Dein XP Boost ist vorbei.")
 
 def setup(bot):
     bot.add_cog(LVLSystem(bot))

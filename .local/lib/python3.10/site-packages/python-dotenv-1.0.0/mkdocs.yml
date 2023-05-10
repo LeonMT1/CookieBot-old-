@@ -1,0 +1,29 @@
+site_name: python-dotenv
+repo_url: https://github.com/theskumar/python-dotenv
+edit_uri: ""
+theme:
+  name: material
+  palette:
+    primary: green
+  features:
+    - toc.follow
+    - navigation.sections
+
+markdown_extensions:
+  - mdx_truly_sane_lists
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          rendering:
+            show_root_heading: yes
+            show_submodules: no
+            separate_signature: yes
+  - search
+nav:
+  - Home: index.md
+  - Changelog: changelog.md
+  - Contributing: contributing.md
+  - Reference: reference.md
+  - License: license.md

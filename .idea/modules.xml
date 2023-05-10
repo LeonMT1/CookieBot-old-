@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/CookieBot.iml" filepath="$PROJECT_DIR$/.idea/CookieBot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Cookie Manager.iml" filepath="$PROJECT_DIR$/.idea/Cookie Manager.iml" />
     </modules>
   </component>
 </project>

@@ -16,22 +16,21 @@ class FunCommands(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        async with aiosqlite.connect("funcommands.db") as db:
-            await db.execute("""
-                CREATE TABLE IF NOT EXISTS married (
-                user_id TEXT PRIMARY KEY,
-                patner TEXT DEFAULT niemanden,
-                married INTEGER DEFAULT 0)""")
-        await asyncio.sleep(0.9)
+        await asyncio.sleep(1.2)
         print("""
             funcommands.py   ✅
             ------------------------""")
 
-    @slash_command(description="Zeige Infos über dein Beziehungsstatus")
-    async def beziehungsstatus(self, ctx):
-        async with aiosqlite.connect("funcommands.db") as db:
-            async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (ctx.author.name,)) as cursor:
-                result = await cursor.fetchone()
+    @slash_command(description="Zeigt wie lange der Bot schon online ist!")
+    async def ontime(self, ctx: discord.ApplicationContext):
+        print(f"{ctx.author} hat /uptime gemacht")
+        uptime_counter = time.time()
+        aktuell_zeit = time.time()
+        uptime_sek = aktuell_zeit - uptime_counter
+
+        uptime_timestamp = round(aktuell_zeit - uptime_sek)
+
+        await ctx.respond(f':green_circle: Der Bot ist seit <t:{uptime_timestamp}:R> online!')
 
     @slash_command(description="Schlage jemanden")
     @commands.cooldown(1, 60, commands.BucketType.user)
@@ -71,116 +70,6 @@ class FunCommands(commands.Cog):
                                                f"/slap {ctx.author} machst 😉")
         if muterolle not in ctx.author.roles:
             await member.send(embed=geschlagen)
-
-    @slash_command(description="Töte Jemanden")
-    @commands.cooldown(1, 60, commands.BucketType.user)
-    async def kill(self, ctx, member: discord.Member):
-        guild: discord.Guild = self.bot.get_guild(724602228505313311)
-        muterolle: discord.Role = guild.get_role(1043532505887809577)
-        key = "AIzaSyDHmg80hvYQrUvrTEee8ARuq9X-6hIE1EM"
-        params = {"q": "kill",
-                  "key": key,
-                  "limit": 30,
-                  "media_filter": "gif"}
-
-        result = requests.get(f"https://tenor.googleapis.com/v2/search", params=params)
-        data = result.json()
-
-        number = random.randint(0, 30)
-
-        url = data["results"][number]["media_formats"]["gif"]["url"]
-
-        if member == "Cookie Manager#9104":
-            print(member)
-            embot = discord.Embed(title="Ich bekomme alles mit!", color=discord.Color.orange(),
-                                  description="Der Bot so krass, das du in nicht töten kannst!")
-            embot.set_footer(text="Gif von Tenor")
-            embot.set_image(
-                url="https://images-ext-2.discordapp.net/external/ZLjKGm6-I9EJNnCpHUMu-J1ChjOhbuRUuqVR_p7dYhY/https/"
-                    "media.tenor.com/FLGynS-9GqQAAAPo/will-smith-south-park.mp4")
-
-        embed = discord.Embed(title=f"{ctx.author.name} hat {member} getötet!", color=discord.Color.red())
-        embed.set_image(url=url)
-        embed.set_footer(text="Gif von Tenor")
-        print(f"{ctx.author.name} hat den Befehl /kill genutzt")
-        await ctx.respond(embed=embed)
-        geschlagen = discord.Embed(title=f"{ctx.author} hat dich getötet!", color=discord.Color.red(),
-                                   description=f"RÄCHE DICH JETZT INDEM DU wieder auf erstehst und auf den **DER COOKIE CLAN** DC gehst und in "
-                                               f"https://discord.com/channels/724602228505313311/963740046995890176 "
-                                               f"/kill {ctx.author} machst 😉")
-        if muterolle not in ctx.author.roles:
-            await member.send(embed=geschlagen)
-
-    @slash_command(description="Umarme jemanden")
-    @commands.cooldown(1, 60, commands.BucketType.user)
-    async def hug(self, ctx, member: discord.Member):
-        guild: discord.Guild = self.bot.get_guild(724602228505313311)
-        muterolle: discord.Role = guild.get_role(1043532505887809577)
-        key = "AIzaSyDHmg80hvYQrUvrTEee8ARuq9X-6hIE1EM"
-        params = {"q": "hug",
-                  "key": key,
-                  "limit": 30,
-                  "media_filter": "gif"}
-
-        result = requests.get(f"https://tenor.googleapis.com/v2/search", params=params)
-        data = result.json()
-
-        number = random.randint(0, 30)
-
-        url = data["results"][number]["media_formats"]["gif"]["url"]
-
-        if member == "Cookie Manager#9104":
-            print(member)
-            embot = discord.Embed(title="Ich bin ein Bot ich habe keine Gefühle!", color=discord.Color.orange(),
-                                  description="Der Bot hat keine Gefühle daher weiß er nicht was er jetzt tuhen soll.")
-        embed = discord.Embed(title=f"{ctx.author.name} hat {member} umarmt,", color=discord.Color.green())
-        embed.set_image(url=url)
-        embed.set_footer(text="Gif von Tenor")
-        print(f"{ctx.author.name} hat den Befehl /hug genutzt")
-        await ctx.respond(embed=embed)
-        geschlagen = discord.Embed(title=f"{ctx.author} hat dich umarmt.", color=discord.Color.green(),
-                                   description=f"Vieleicht umarmst du ihn ja auch indem du auf den **DER COOKIE CLAN** DC gehst und in "
-                                               f"https://discord.com/channels/724602228505313311/963740046995890176 "
-                                               f"/hug {ctx.author} machst 😉")
-        if muterolle not in ctx.author.roles:
-            await member.send(embed=geschlagen)
-
-    @slash_command(description="Küsse Jemanden")
-    @commands.cooldown(1, 60, commands.BucketType.user)
-    async def kiss(self, ctx, member: discord.Member):
-        guild: discord.Guild = self.bot.get_guild(724602228505313311)
-        muterolle: discord.Role = guild.get_role(1043532505887809577)
-        key = "AIzaSyDHmg80hvYQrUvrTEee8ARuq9X-6hIE1EM"
-        params = {"q": "kiss",
-                  "key": key,
-                  "limit": 30,
-                  "media_filter": "gif"}
-
-        result = requests.get(f"https://tenor.googleapis.com/v2/search", params=params)
-        data = result.json()
-
-        number = random.randint(0, 30)
-
-        url = data["results"][number]["media_formats"]["gif"]["url"]
-
-        if member == "Cookie Manager#9104":
-            print(member)
-            embot = discord.Embed(title="Der Bot ist überfordert.", color=discord.Color.orange(),
-                                  description="Der Bot kennt keine Gefühle und weiß auch sonst nicht so was Menschen machen daher weiß er nicht wie er jetzt reagieren soll.")
-
-        embed = discord.Embed(title=f"{ctx.author.name} hat {member} geküsst.", color=discord.Color.nitro_pink())
-        embed.set_image(url=url)
-        embed.set_footer(text="Gif von Tenor")
-        print(f"{ctx.author.name} hat den Befehl /kiss genutzt")
-        await ctx.respond(embed=embed)
-        geschlagen = discord.Embed(title=f"{ctx.author} hat dich geküsst.", color=discord.Color.nitro_pink(),
-                                   description=f"Vieleicht küsst oder umarmst du ihn auch indem du auf den **DER COOKIE CLAN** DC gehst und in "
-                                               f"https://discord.com/channels/724602228505313311/963740046995890176 "
-                                               f"/kiss oder /huug {ctx.author} machst 😉")
-        if muterolle not in ctx.author.roles:
-            await member.send(embed=geschlagen)
-
-
 
     @slash_command(description="Löse ein zufälliges Event aus. uiii")
     @commands.cooldown(1, 3600, commands.BucketType.user)
@@ -281,6 +170,7 @@ class FunCommands(commands.Cog):
             print(f"{ctx.author} hat /hack gemacht")
             guild: discord.Guild = self.bot.get_guild(724602228505313311)
             muterolle: discord.Role = guild.get_role(1043532505887809577)
+            embed2 = discord.Embed(title="Fehlgeschlagen!", description=f"Der Hack auf **{member.name}** ist fehlgeschlagen. Du kannst es in 12h erneut probieren.", color=discord.Color.red())
             async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (member.name,)) as cursor:
                 result = await cursor.fetchone()
             if result == 0:
@@ -356,7 +246,7 @@ class FunCommands(commands.Cog):
             await db.execute("UPDATE users SET cookies = cookies - ? WHERE user_id = ?", (cookies, opfer))
             await db.commit()
             if cookies == 0:
-                await message.edit(content="Der Hack ist leider fehlgeschlagen")
+                await message.edit(content=None, embed=embed2)
                 return
             embed = discord.Embed(title="Erfolgreich abgeschloßen!", description=f"""
 Du hast von **{member.mention}** **{cookies}** Cookies erhackt!
