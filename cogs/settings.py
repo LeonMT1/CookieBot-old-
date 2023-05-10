@@ -5,6 +5,7 @@ import discord.commands
 from discord import slash_command, Option
 from discord.ext import commands
 
+
 class Settings(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

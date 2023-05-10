@@ -1,5 +1,5 @@
-import random
 import asyncio
+import random
 
 import aiosqlite
 import discord
@@ -80,9 +80,9 @@ class LVLSystem(commands.Cog):
                              (xp, message.author.name))
             await db.commit()
             print(xp)
-            glueckembed = discord.Embed(title="Kleine Belhonung ;)",
-                                       description=f"{message.author.name} hat {xp} Cookies bekommen da er aktiv am "
-                                                   f"Chat teilgenommen hast!", color=discord.Color.green())
+            glueckembed = discord.Embed(title="Kleine Belohnung;)",
+                                        description=f"{message.author.name} hat {xp} Cookies bekommen da er aktiv am "
+                                                    f"Chat teilgenommen hast!", color=discord.Color.green())
 
             if rndm == 1:
                 await message.channel.send(embed=glueckembed)
@@ -136,7 +136,8 @@ class LVLSystem(commands.Cog):
         # mathe_lvl = self.get_level(mathe_xp)
 
         embed = discord.Embed(title=f"{user.name} Rank", color=discord.Color.random())
-        embed.add_field(name="XP", value=f"{user.name} hat **{xp}/{xp_to_next_level}** XP und ist daher Level **{lvl}**.", inline=True)
+        embed.add_field(name="XP", value=f"{user.name} hat **{xp}/{xp_to_next_level}** XP und ist daher Level **{lvl}**"
+                                         f".", inline=True)
         embed.add_field(name="Talk Zeit", value=f"{user.name} war **{call_sec[0]}** Sekunden in Talks.", inline=True)
         embed.add_field(name="Cookies", value=f"{user.name} hat **{cookies[0]}** Cookies.", inline=True)
         embed.add_field(name="Narichten", value=f"{user.name} hat **{msg_count[0]}** Narichten geschrieben.",
@@ -225,8 +226,6 @@ class LVLSystem(commands.Cog):
         async with aiosqlite.connect("level.db") as db:
             async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (ctx.author.name,)) as cursor:
                 result = await cursor.fetchone()
-               # guild: discord.Guild = self.bot.get_guild(724602228505313311)
-               # muterolle: discord.Role = guild.get_role(1043532505887809577)
                 print(f"{ctx.author} hat /give gemacht")
                 if user == ctx.author:
                     await ctx.respond("Du kannst dir nicht selber Kekse geben!", ephemeral=True)
@@ -244,11 +243,8 @@ class LVLSystem(commands.Cog):
             await ctx.respond(f"Du hast erfolgreich **{user.name}** **{betrag}** Cookies gegeben.", ephemeral=True)
             async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (user.name,)) as cursor2:
                 userresult = await cursor2.fetchone()
-           # if muterolle in ctx.author.roles:
-           #     print("Der User hat muterolle")
-           # else:
             await user.send(f"Du hast von {ctx.author.name} **{betrag}** Cookies bekommen. Du hast jetzt "
-                                f"**{userresult[0]}** Cookies.")
+                            f"**{userresult[0]}** Cookies.")
 
     @slash_command(description="Esse einen Keks")
     async def eat(self, ctx, cookies: Option(int, description="Wie viele Kekse möchtest du essen?")):
@@ -282,6 +278,7 @@ class LVLSystem(commands.Cog):
             await asyncio.sleep(xpboost * 60)
             await ctx.author.remove_roles(rolle)
             await ctx.author.send(f"Dein XP Boost ist vorbei.")
+
 
 def setup(bot):
     bot.add_cog(LVLSystem(bot))

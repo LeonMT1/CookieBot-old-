@@ -12,33 +12,16 @@ import humanfriendly
 import pytz
 import requests
 from discord import Option
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord.ui import Button, View
 from dotenv import load_dotenv
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
+aktivitaet = discord.Activity(status=discord.Status.invisible)
 
-aktivität = discord.Activity(status=discord.Status.invisible)
+activity = discord.Activity(type=discord.ActivityType.playing, name="mit Keksen")
 
-activity = discord.Activity(type=discord.ActivityType.playing, name="mit Keksen"
-                            )
-
-bot = discord.Bot(intents=intents, debug_guilds=None, activity=aktivität)
+bot = discord.Bot(intents=discord.Intents.all(), debug_guilds=None, activity=aktivitaet)
 openai.api_key = "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"
-
-# © 2022 - Martin B. ツ#2128
-GUILD = 1016436920965939280
-STATUS_ROLE = 1033889262246035456
-STATUS_TEXT = "https://discord.gg/yaVeqUPhVE"
-LOG_CHANNEL = 1016436921750270034
-
-GUILD_ID = 1016436920965939280  # Server ID eintragen!
-TEAM_ROLE = 1022176701448458270  # Die Rolle, welches die Tickets sehen soll!
-TICKET_CHANNEL = 1045440415337295982  # Der Channel, wo Tickets geöffnet werden sollen!
-CATEGORY_ID = 1045440313881280593  # Die Kategorie, wo die Tickets erstellt werden sollen!
-
 
 @bot.event
 async def on_ready():
@@ -49,23 +32,10 @@ async def on_ready():
         description='Dieser Bot ist jetzt wieder online!',
         color=discord.Color.green(),
         timestamp=datetime.now().astimezone(tz=de))
-    vanity_task.start()
     await asyncio.sleep(1)
     await bot.get_channel(825340653378338837).send(embed=online)
     for guild in bot.guilds:
         print(guild.name)
-
-
-async def has_vanity(member: discord.Member):
-    if not len(member.activities) == 0:
-        for i in member.activities:
-            if isinstance(i, discord.CustomActivity):
-                if STATUS_TEXT in i.name or STATUS_TEXT == i.name:
-                    return True
-
-    else:
-        return False
-
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -621,22 +591,20 @@ async def on_message_delete(message):
     )
     await bot.get_channel(825340653378338837).send(embed=em)
 
-
 @bot.event
-async def on_message_edit(before, after, message: discord.Message):
+async def on_message_edit(before, after):
     de = pytz.timezone('Europe/Berlin')
-    em = discord.Embed(
-        title='Messege Edit',
-        description=f'**Bearbeitete Nachricht von**: {before.author}'
-                    f'\r\n**Alte Nachricht**: {before.content}'
-                    f'\r\n**Neue Nachricht**: {after.content}',
-        color=0xf1c40f,
-        timestamp=datetime.now().astimezone(tz=de)
-    )
-    if message.author.bot:
+    if before.author.bot:
         return
-    await bot.get_channel(825340653378338837).send(embed=em)
 
+    embed = discord.Embed(title="Nachricht bearbeitet", color=discord.Color.blue(), timestamp=datetime.now().astimezone(tz=de))
+
+    embed.add_field(name="Vorher", value=before.content, inline=False)
+    embed.add_field(name="Nachher", value=after.content, inline=False)
+
+    log_channel_id = 825340653378338837  # ID des Log-Channels einfügen
+    log_channel = bot.get_channel(log_channel_id)
+    await log_channel.send(embed=embed)
 
 @bot.event
 async def on_member_update(before, after):
@@ -822,6 +790,7 @@ def epic_meme():
     listing = 'random'  # Themen: controversial, best, hot, new, random, rising, top
 
     def get_reddit(subreddit, count):
+        global request
         try:
             base_url = f'https://www.reddit.com/r/{subreddit}/{listing}.json?count={count}&t={timeframe}'
             request = requests.get(base_url, headers={'User-agent': 'yourbot'})
@@ -1185,41 +1154,6 @@ async def on_raw_reaction_remove(payload):
             except discord.Forbidden:
                 _channel = discord.utils.get(guild.channels, id=payload.channel_id)
                 await _channel.send('Ich habe keine Rechte um diese Rolle anderen zu geben oder sie wurde gelöscht!')
-
-
-@tasks.loop(seconds=1)
-async def vanity_task():
-    await bot.wait_until_ready()
-
-    guild: discord.Guild = bot.get_guild(GUILD)
-    role = guild.get_role(STATUS_ROLE)
-    log = bot.get_channel(LOG_CHANNEL)
-
-    if guild.members:
-        for member in guild.members:
-            if member.bot:
-                continue
-            vanity = await has_vanity(member)
-            if vanity:
-                if not role in member.roles:
-                    await member.add_roles(role, atomic=True)
-                    embed = discord.Embed(
-                        title="Vanity-Rolle hinzugefügt!",
-                        description=f"{member.mention} hat die Vanity-Rolle **{role.mention}** erhalten.",
-                        color=discord.Color.green()
-                    )
-                    await log.send(embed=embed)
-
-            else:
-                if role in member.roles:
-                    await member.remove_roles(role, atomic=True)
-                    embed = discord.Embed(
-                        title="Vanity-Rolle entfernt!",
-                        description=f"{member.mention} wurde die Vanity-Rolle {role.mention} entfernt.",
-                        color=discord.Color.red()
-                    )
-                    await log.send(embed=embed)
-
 
 @bot.event
 async def on_message(message):

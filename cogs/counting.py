@@ -1,16 +1,12 @@
 import asyncio
-import ast
-import random
-import aiosqlite
-import time
-import os
 import json
+import os
 
+import aiosqlite
 import discord
-import requests
-from discord import slash_command
-from discord.ext import commands
 import discord.commands
+from discord.ext import commands
+
 
 class CountingCog(commands.Cog):
     def __init__(self, bot):
@@ -35,14 +31,17 @@ class CountingCog(commands.Cog):
         print("""
             counting.py      ✅""")
         await self.bot.get_channel(1073159625681162260).send("**0**")
-        
+
     @commands.Cog.listener()
     async def on_message(self, message):
         async with aiosqlite.connect("level.db") as db:
             if message.author.bot:
                 return
-            embed = discord.Embed(title="Verkackt!", description=f"{message.author.name} hat die Falsche Zahl geschrieben.", color=discord.Color.red())
-            embed2 = discord.Embed(title="Verkackt!", description=f"{message.author.name} du kannst nicht alleine Zählen du Egoist.")
+            embed = discord.Embed(title="Verkackt!",
+                                  description=f"{message.author.name} hat die Falsche Zahl geschrieben.",
+                                  color=discord.Color.red())
+            embed2 = discord.Embed(title="Verkackt!",
+                                   description=f"{message.author.name} du kannst nicht alleine Zählen du Egoist.")
             if message.channel.id == 1073159625681162260:
                 if message.content.isdigit():
                     if self.previous_author == message.author:
@@ -53,7 +52,8 @@ class CountingCog(commands.Cog):
                         self.count += 1
                         self.previous_author = message.author
                         await message.add_reaction('✅')
-                        await db.execute("UPDATE users SET cookies = cookies + 1 WHERE user_id = ?", (message.author.name,))
+                        await db.execute("UPDATE users SET cookies = cookies + 1 WHERE user_id = ?",
+                                         (message.author.name,))
                         await db.commit()
                     else:
                         self.count = 0

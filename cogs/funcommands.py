@@ -1,13 +1,13 @@
 import asyncio
 import random
-import aiosqlite
 import time
 
+import aiosqlite
 import discord
+import discord.commands
 import requests
 from discord import slash_command
 from discord.ext import commands
-import discord.commands
 
 
 class FunCommands(commands.Cog):
@@ -170,7 +170,9 @@ class FunCommands(commands.Cog):
             print(f"{ctx.author} hat /hack gemacht")
             guild: discord.Guild = self.bot.get_guild(724602228505313311)
             muterolle: discord.Role = guild.get_role(1043532505887809577)
-            embed2 = discord.Embed(title="Fehlgeschlagen!", description=f"Der Hack auf **{member.name}** ist fehlgeschlagen. Du kannst es in 12h erneut probieren.", color=discord.Color.red())
+            embed2 = discord.Embed(title="Fehlgeschlagen!",
+                                   description=f"Der Hack auf **{member.name}** ist fehlgeschlagen. Du kannst es in 12h erneut probieren.",
+                                   color=discord.Color.red())
             async with db.execute("SELECT cookies FROM users WHERE user_id = ?", (member.name,)) as cursor:
                 result = await cursor.fetchone()
             if result == 0:

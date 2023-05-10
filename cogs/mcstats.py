@@ -1,8 +1,10 @@
-import discord
-from discord.ext import commands
-from discord.commands import slash_command, option
-import aiohttp
 import asyncio
+
+import aiohttp
+import discord
+from discord.commands import slash_command, option
+from discord.ext import commands
+
 
 class mcstats(commands.Cog):
     def __init__(self, bot):
