@@ -33,7 +33,7 @@ async def on_ready():
         description='Dieser Bot ist jetzt wieder online!',
         color=discord.Color.green(),
         timestamp=datetime.now().astimezone(tz=de))
-    await asyncio.sleep(1)
+    await asyncio.sleep(2)
     await bot.get_channel(825340653378338837).send(embed=online)
     for guild in bot.guilds:
         print(guild.name)

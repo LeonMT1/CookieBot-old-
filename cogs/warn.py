@@ -24,7 +24,7 @@ class WarnSystem(commands.Cog):
     async def on_ready(self):
         await asyncio.sleep(1.3)
         print("""
-            warn.py      ✅""")
+            warn.py          ✅""")
 
     @slash_command(name="warn", description="Verwarne einen Benutzer")
     @discord.default_permissions(administrator=True)
@@ -34,20 +34,6 @@ class WarnSystem(commands.Cog):
         embed = discord.Embed(title=f'{member.mention} wurde verwarnt.', description=f'Grund: **{reason}**')
         embed.set_author(name=member.name, icon_url=member.avatar.url)
         ctx.respond(embed=embed)
-
-        await self.check_timeout(member)
-
-    async def check_timeout(self, member):
-        self.cursor.execute('SELECT COUNT(*) FROM warnings WHERE member_id = ?', (member.id,))
-        result = self.cursor.fetchone()
-        warning_count = result[0]
-
-        if warning_count >= 10:
-            # role = discord.utils.get(member.guild.roles, name='Muted')
-            await member.edit(mute=True)
-            await member.send('Du hast 10 oder mehr Warnungen erhalten und wurdest für 1 Woche gemutet.')
-            await asyncio.sleep(604800)  # 1 Woche in Sekunden
-            await member.edit(mute=False)
 
     @slash_command(name="warnings", description="Zeige alle Warnungen für einen Benutzer")
     async def warnings(self, ctx, member: discord.Member):
@@ -77,9 +63,9 @@ class WarnSystem(commands.Cog):
                 warnings_count = row[1]
                 embed.add_field(name=f'Platz {idx + 1}: {member.name}', value=f'Anzahl der Warnungen: {warnings_count}',
                                 inline=False)
-            await ctx.send(embed=embed)
+            await ctx.respond(embed=embed)
         else:
-            await ctx.send('Keine Warnungen auf diesen Server gefunden.')
+            await ctx.respond('Keine Warnungen auf diesen Server gefunden.')
 
     @slash_command(name="clear_warnings", description="Lösche alle Warnungen für einen Benutzer")
     @discord.default_permissions(administrator=True)
