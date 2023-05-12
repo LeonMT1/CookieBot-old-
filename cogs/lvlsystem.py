@@ -82,7 +82,7 @@ class LVLSystem(commands.Cog):
             print(xp)
             glueckembed = discord.Embed(title="Kleine Belohnung;)",
                                         description=f"{message.author.name} hat {xp} Cookies bekommen da er aktiv am "
-                                                    f"Chat teilgenommen hast!", color=discord.Color.green())
+                                                    f"Chat teilgenommen has!", color=discord.Color.green())
 
             if rndm == 1:
                 await message.channel.send(embed=glueckembed)

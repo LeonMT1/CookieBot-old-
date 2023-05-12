@@ -11,7 +11,7 @@ import discord
 import humanfriendly
 import pytz
 import requests
-from discord import Option
+from discord import Option, ui
 from discord.ext import commands
 from discord.ui import Button, View
 from dotenv import load_dotenv
@@ -22,6 +22,7 @@ activity = discord.Activity(type=discord.ActivityType.playing, name="mit Keksen"
 
 bot = discord.Bot(intents=discord.Intents.all(), debug_guilds=None, activity=aktivitaet)
 openai.api_key = "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"
+
 
 @bot.event
 async def on_ready():
@@ -36,6 +37,7 @@ async def on_ready():
     await bot.get_channel(825340653378338837).send(embed=online)
     for guild in bot.guilds:
         print(guild.name)
+
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -591,20 +593,25 @@ async def on_message_delete(message):
     )
     await bot.get_channel(825340653378338837).send(embed=em)
 
+
 @bot.event
 async def on_message_edit(before, after):
     de = pytz.timezone('Europe/Berlin')
     if before.author.bot:
         return
 
-    embed = discord.Embed(title="Nachricht bearbeitet", color=discord.Color.blue(), timestamp=datetime.now().astimezone(tz=de))
+    embed = discord.Embed(title="Nachricht bearbeitet", color=discord.Color.blue(),
+                          timestamp=datetime.now().astimezone(tz=de))
 
     embed.add_field(name="Vorher", value=before.content, inline=False)
     embed.add_field(name="Nachher", value=after.content, inline=False)
+    embed.set_author(name=before.author.name, icon_url=before.author.avatar.url)
+    embed.add_field(name="Kanal", value=before.channel.mention, inline=True)
 
     log_channel_id = 825340653378338837  # ID des Log-Channels einfügen
     log_channel = bot.get_channel(log_channel_id)
     await log_channel.send(embed=embed)
+
 
 @bot.event
 async def on_member_update(before, after):
@@ -994,7 +1001,10 @@ async def youtube(ctx):
 
 @bot.event
 async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
-    call_length = 0  # default value
+    if member.bot:
+        return
+
+    call_length = 0
     async with aiosqlite.connect("level.db") as db:
         de = pytz.timezone('Europe/Berlin')
         embed2 = discord.Embed(
@@ -1012,15 +1022,16 @@ async def on_voice_state_update(member: discord.Member, before: discord.VoiceSta
                                  (call_length, member.name))
                 await db.commit()
                 print(f"{member.name} war {call_length} Sekunden im Talk")
+                embed2.description = f'**Zeit im Talk**: {member.name} war {call_length}S im Talk'
+                await bot.get_channel(1079768281709301821).send(embed=embed2)
                 del data[str(member.id)]
             except KeyError:
                 return
         else:
             data[str(member.id)] = round(time.time())
         with open('vc.json', 'w') as f:
-            data = json.dump(data, f)
-            embed2.description = f'**Zeit im Talk**: {member.name} war {call_length}S im Talk'  # update the description field
-            await bot.get_channel(825340653378338837).send(embed=embed2)
+            json.dump(data, f)
+
 
 
 @bot.slash_command(description='Narichten als anderer User schicken')
@@ -1123,7 +1134,7 @@ async def on_raw_reaction_add(payload):
             guild = member.guild
             roleid = data[str(payload.message_id)]
             role = discord.utils.get(guild.roles, id=roleid)
-            if role == None or not role.is_assignable:
+            if role is None or not role.is_assignable:
                 _channel = discord.utils.get(guild.channels, id=payload.channel_id)
                 await _channel.send('Ich habe keine Rechte um diese Rolle anderen zu geben oder sie wurde gelöscht!')
                 return
@@ -1154,6 +1165,7 @@ async def on_raw_reaction_remove(payload):
             except discord.Forbidden:
                 _channel = discord.utils.get(guild.channels, id=payload.channel_id)
                 await _channel.send('Ich habe keine Rechte um diese Rolle anderen zu geben oder sie wurde gelöscht!')
+
 
 @bot.event
 async def on_message(message):
@@ -1218,6 +1230,8 @@ if __name__ == "__main__":
     bot.load_extension("cogs.mcstats")
     bot.load_extension("cogs.counting")
     bot.load_extension("cogs.radio")
+    bot.load_extension("cogs.boosttime")
+    bot.load_extension("cogs.warn")
     bot.load_extension("cogs.funcommands")
     load_dotenv()
     bot.run(os.getenv("TESTTOKEN"))

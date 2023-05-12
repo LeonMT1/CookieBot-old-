@@ -16,7 +16,7 @@ class FunCommands(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await asyncio.sleep(1.2)
+        await asyncio.sleep(1.4)
         print("""
             funcommands.py   ✅
             ------------------------""")
@@ -116,7 +116,7 @@ class FunCommands(commands.Cog):
             eventnotgood = [f"Du hast Elon Musk nach Twitter+ gefragt, er hatte dich mit seinem Waschbeken beworfen "
                             f"und dir sind **{cookies}** Cookies zerbrochen.", f"Du hast das neue Cyberpunk 2089 "
                                                                                f"gekauft allerdings ist es voller Bugs "
-                                                                               f"und du raget und zerbichst "
+                                                                               f"und du ragest und zerbichst "
                                                                                f"**{cookies}** Cookies dabei.",
                             f"Du hast im Aldilie eine Cookie Packung geklaut allerdings hat dich der Ladenbesitzer "
                             f"erwischt. Er hat dich verklagt und du musstest **{cookies}** Cookies strafe zahlen.",
